@@ -4,9 +4,21 @@ use strict;
 use warnings;
 
 
-use WWW::MenuGrinder;
+package Test::MenuGrinder;
 
-my $grinder = WWW::MenuGrinder->new;
+use Moose;
+
+extends 'WWW::MenuGrinder';
+
+has 'path' => (
+  is => 'ro',
+  lazy => '1',
+  default => sub { 'user/view' }
+);
+
+package main;
+
+my $grinder = Test::MenuGrinder->new;
 
 $grinder->load_plugins(
   'XMLLoader' => {
@@ -14,6 +26,8 @@ $grinder->load_plugins(
   },
   'Visitor',
   'DefaultTarget',
+  'Hotkey',
+  'ActivePath',
   'NullOutput'
 );
 

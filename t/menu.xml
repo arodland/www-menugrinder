@@ -10,7 +10,7 @@
     </item>
   </item>
   <item>
-    <label>User Manager</label>
+    <label>_User Manager</label>
     <need_role>it</need_role>
     <location>user</location>
     <target>/user/search</target>
@@ -25,7 +25,7 @@
     </item>
   </item>
   <item>
-    <label>Hardware Manager</label>
+    <label>_Hardware Manager</label>
     <need_role>it</need_role>
     <location>hardware</location>
     <target>/hardware/search</target>
@@ -39,21 +39,12 @@
     </item>
   </item>
   <item>
-    <label>CSR Manager</label>
+    <label>_CSR Manager</label>
     <need_role>csr_manager</need_role>
     <location>csr</location>
     <item>
       <location>csr/perf</location>
       <label>CSR Performance</label>
-    </item>
-  </item>
-  <item>
-    <label>Test</label>
-    <need_role>it</need_role>
-    <location>test</location>
-    <item>
-      <location>test</location>
-      <label>Test</label>
     </item>
   </item>
   <item>

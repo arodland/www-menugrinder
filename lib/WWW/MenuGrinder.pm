@@ -114,6 +114,8 @@ sub init {
 sub pre_mogrify {
   my ($self, $menu) = @_;
 
+  $_->before_pre_mogrify($menu) for @{ $self->plugins_with(-BeforePreMogrify) };
+
   my @pre_mog = @{ $self->premogrifiers };
 
   $menu = $_->pre_mogrify($menu) for @pre_mog;
@@ -126,6 +128,8 @@ sub get_menu {
   my ($self) = @_;
 
   my $menu = $self->menu;
+
+  $_->before_mogrify($menu) for @{ $self->plugins_with(-BeforeMogrify) };
 
   my @mog = @{ $self->mogrifiers };
 
