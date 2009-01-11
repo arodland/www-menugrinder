@@ -3,8 +3,6 @@ package WWW::MenuGrinder;
 use strict;
 use warnings;
 
-use Data::Visitor::Callback;
-
 use Moose;
 
 use WWW::MenuGrinder::Role::Plugin;
