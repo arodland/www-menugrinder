@@ -1,5 +1,7 @@
 package WWW::MenuGrinder::Plugin::XMLLoader;
 
+# ABSTRACT: WWW::MenuGrinder plugin that loads menus with XML::Simple.
+
 use XML::Simple;
 
 use Moose;

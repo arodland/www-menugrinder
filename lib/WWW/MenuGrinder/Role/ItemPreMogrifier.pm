@@ -1,5 +1,7 @@
 package WWW::MenuGrinder::Role::ItemPreMogrifier;
 
+# ABSTRACT: WWW::MenuGrinder role for plugins that modify menus item-by-item at load time.
+
 use Moose::Role;
 
 with 'WWW::MenuGrinder::Role::Plugin';

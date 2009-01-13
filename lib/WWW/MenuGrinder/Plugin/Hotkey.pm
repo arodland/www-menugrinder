@@ -1,5 +1,7 @@
 package WWW::MenuGrinder::Plugin::Hotkey;
 
+# ABSTRACT: WWW::MenuGrinder plugin that generates hotkeys from labels.
+
 use Moose;
 
 with 'WWW::MenuGrinder::Role::ItemPreMogrifier';

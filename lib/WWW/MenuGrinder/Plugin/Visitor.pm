@@ -1,5 +1,7 @@
 package WWW::MenuGrinder::Plugin::Visitor;
 
+# ABSTRACT: WWW::MenuGrinder plugin that allows item-by-item mogrification.
+
 use Moose;
 
 use Scalar::Util;

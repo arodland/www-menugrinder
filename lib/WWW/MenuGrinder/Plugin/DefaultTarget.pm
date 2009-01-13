@@ -1,5 +1,7 @@
 package WWW::MenuGrinder::Plugin::DefaultTarget;
 
+# ABSTRACT: WWW::MenuGrinder plugin that sets a default link target.
+
 use Moose;
 
 with 'WWW::MenuGrinder::Role::ItemPreMogrifier';

@@ -1,5 +1,7 @@
 package WWW::MenuGrinder::Plugin::ActivePath;
 
+# ABSTRACT: WWW::MenuGrinder plugin that finds a path to the currently active page.
+
 use Moose;
 use List::Util;
 

@@ -1,5 +1,7 @@
 package WWW::MenuGrinder;
 
+# ABSTRACT: Menu Munger.
+
 use strict;
 use warnings;
 
