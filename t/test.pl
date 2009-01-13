@@ -20,6 +20,14 @@ before 'init' => sub {
   warn "Init!\n";
 };
 
+sub get_all_variables {
+  my ($self) = @_;
+
+  return {
+    username => "Suzy Queue"
+  };
+}
+
 package main;
 
 my $grinder = Test::MenuGrinder->new;
@@ -34,6 +42,7 @@ $grinder->load_plugins(
   'Visitor',
   'DefaultTarget',
   'Hotkey',
+  'Variables',
   'ActivePath',
   'NullOutput'
 );

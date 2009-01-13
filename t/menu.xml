@@ -15,6 +15,9 @@
     <location>user</location>
     <target>/user/search</target>
     <item>
+      <label>Your name is ${username}</label>
+    </item>
+    <item>
       <location>user/search</location>
       <label>Search</label>
     </item>
