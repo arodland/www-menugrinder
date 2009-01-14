@@ -59,27 +59,6 @@ $grinder->init;
 
 print Dumper $grinder->get_menu;
 
-$grinder = Test::MenuGrinder->new;
-
-$grinder->load_plugins(
-  'YAMLLoader' => {
-    filename => 't/menu.yaml'
-  },
-  'FileReloader' => {
-    filename => 't/menu.yaml'
-  },
-  'Visitor',
-  'DefaultTarget',
-  'Hotkey',
-  'Variables',
-  'ActivePath',
-  'NullOutput',
-);
-
-$grinder->init;
-
-print Dumper $grinder->get_menu;
-
 use Benchmark;
 
 timethese(-5, {
