@@ -10,8 +10,11 @@ with 'WWW::MenuGrinder::Role::ItemMogrifier';
 sub item_mogrify {
   my ( $self, $item ) = @_;
 
-  if (ref $item->{need_priv}) {
-    for my $priv (@{ $item->{need_priv} }) {
+  if (exists $item->{need_priv}) {
+    my @privs = ref($item->{need_priv}) ? 
+      @{ $item->{need_priv} } : $item->{need_priv};
+
+    for my $priv (@privs) {
       if (! $self->grinder->has_priv($priv) ) {
         return ();
       }

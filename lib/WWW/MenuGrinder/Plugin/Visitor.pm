@@ -91,7 +91,10 @@ sub pre_mogrify {
   $menu = _visit($menu, {
       HASH => sub {
         my ( $item ) = @_;
-        $item = $_->item_pre_mogrify($item) for @ipm;
+        for (@ipm) {
+          $item = $_->item_pre_mogrify($item);
+          return () unless defined $item;
+        }
         return $item;
       }
     }
@@ -111,7 +114,10 @@ sub mogrify {
   $menu = _visit($menu, {
       HASH => sub {
         my ( $item ) = @_;
-        $item = $_->item_mogrify($item) for @im;
+        for (@im) {
+          $item = $_->item_mogrify($item);
+          return () unless defined $item;
+        }
         return $item;
       }
     }

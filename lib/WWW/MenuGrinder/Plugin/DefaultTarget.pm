@@ -10,7 +10,8 @@ sub item_pre_mogrify {
   my ($self, $item) = @_;
 
   if (exists $item->{location} && !exists $item->{target}) {
-    $item->{target} = "/" . $item->{location}[0];
+    my $loc = ref($item->{location}) ? $item->{location}[0] : $item->{location};
+    $item->{target} = "/" . $loc;
   }
 
   return $item;

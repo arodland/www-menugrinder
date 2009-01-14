@@ -2,9 +2,9 @@ package WWW::MenuGrinder::Plugin::XMLLoader;
 
 # ABSTRACT: WWW::MenuGrinder plugin that loads menus with XML::Simple.
 
-use XML::Simple;
-
 use Moose;
+
+use XML::Simple;
 
 with 'WWW::MenuGrinder::Role::Loader';
 
@@ -19,7 +19,7 @@ sub load {
   open my $menufh, '<:encoding(UTF-8)', $self->filename or die $!;
   my $menu_xml = do { local $/; <$menufh> };
 
-  my $menu = XMLin($menu_xml, ForceArray => [ qw(item location need_var need_priv no_var no_priv) ]);
+  my $menu = XMLin($menu_xml, ForceArray => [ qw(item) ]);
 
   return $menu;
 }

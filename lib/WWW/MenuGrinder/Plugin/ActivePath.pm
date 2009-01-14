@@ -19,8 +19,12 @@ sub before_mogrify {
 sub item_mogrify {
   my ( $self, $item ) = @_;
 
-  if ( ref $item->{location} ) {
-    for my $location ( @{ $item->{location} } ) {
+  if ( exists $item->{location} ) {
+
+    my @loc = ref($item->{location}) eq 'ARRAY' ? 
+      @{ $item->{location} } : $item->{location};
+
+    for my $location ( @loc ) {
       # XML::Simple is stupid
       if ( $location eq '' or ref($location) eq 'HASH' ) { 
         $item->{active} = 0.01; # more than 0, less than 1
@@ -30,8 +34,13 @@ sub item_mogrify {
       }
     }
   }
+
+  # Walk our children (which have just been processed) and see if any of them
+  # have active scores (that are better than ours). Mark the best item as
+  # active=1 and remove the attribute from the rest.
+
   if ( ref $item->{item} ) {
-    my $max = List::Util::max( map { $_->{active} || 0 } @{ $item->{item} } );
+    my $max = List::Util::max( (map { $_->{active} || 0 } @{ $item->{item} }), $item->{active} || 0 );
     if ($max) {
       for my $i ( @{ $item->{item} } ) {
         if ( defined $i->{active} && $i->{active} == $max ) {

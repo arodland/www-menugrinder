@@ -97,9 +97,6 @@ sub load_plugins {
     push @plugins, $plugin;
   }
 
-  use Data::Dumper;
-  print Dumper \@plugins;
-
   $self->plugins( [ @plugins ] );
 }
 

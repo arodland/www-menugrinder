@@ -20,7 +20,13 @@ before 'init' => sub {
   warn "Init!\n";
 };
 
-sub get_all_variables {
+sub get_variable {
+  my ($self, $varname) = @_;
+
+  return $self->variables->{$varname};
+}
+
+sub variables {
   my ($self) = @_;
 
   return {
@@ -29,6 +35,8 @@ sub get_all_variables {
 }
 
 package main;
+
+use Data::Dumper;
 
 my $grinder = Test::MenuGrinder->new;
 
@@ -44,12 +52,31 @@ $grinder->load_plugins(
   'Hotkey',
   'Variables',
   'ActivePath',
-  'NullOutput'
+  'NullOutput',
 );
 
 $grinder->init;
 
-use Data::Dumper;
+print Dumper $grinder->get_menu;
+
+$grinder = Test::MenuGrinder->new;
+
+$grinder->load_plugins(
+  'YAMLLoader' => {
+    filename => 't/menu.yaml'
+  },
+  'FileReloader' => {
+    filename => 't/menu.yaml'
+  },
+  'Visitor',
+  'DefaultTarget',
+  'Hotkey',
+  'Variables',
+  'ActivePath',
+  'NullOutput',
+);
+
+$grinder->init;
 
 print Dumper $grinder->get_menu;
 
