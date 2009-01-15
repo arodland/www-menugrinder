@@ -38,21 +38,19 @@ package main;
 
 use Data::Dumper;
 
-my $grinder = Test::MenuGrinder->new;
-
-$grinder->load_plugins(
-  'XMLLoader' => {
-    filename => 't/menu.xml'
+my $grinder = Test::MenuGrinder->new(
+  config => {
+    plugins => [
+      'XMLLoader',
+      'FileReloader',
+      'DefaultTarget',
+      'Hotkey',
+      'Variables',
+      'ActivePath',
+      'NullOutput'
+    ],
+    filename => 't/menu.xml',
   },
-  'FileReloader' => {
-    filename => 't/menu.xml'
-  },
-  'Visitor',
-  'DefaultTarget',
-  'Hotkey',
-  'Variables',
-  'ActivePath',
-  'NullOutput',
 );
 
 $grinder->init;

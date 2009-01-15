@@ -10,6 +10,8 @@ with 'WWW::MenuGrinder::Role::BeforeMogrify';
 
 has path => ( is => 'rw' );
 
+sub plugin_depends { qw(Visitor) }
+
 sub before_mogrify {
   my ($self) = @_;
 

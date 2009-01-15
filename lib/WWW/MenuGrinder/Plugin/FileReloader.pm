@@ -15,9 +15,9 @@ BEGIN {
     Time::HiRes->import(qw(stat));
   };
 }
+
 has filename => (
-  is => 'ro',
-  required => 1
+  is => 'rw',
 );
 
 has timestamp => (
@@ -36,8 +36,17 @@ sub before_mogrify {
   my $time = (stat $self->filename)[9];
 
   if (defined $time and $time > $self->timestamp) {
-    $self->grinder->init;
+    $self->grinder->init_menu;
   }
+}
+
+sub BUILD {
+  my ($self) = @_;
+
+  my $filename = $self->grinder->config->{filename};
+  die "config->{filename} is required" unless defined $filename;
+
+  $self->filename($filename);
 }
 
 no Moose;
