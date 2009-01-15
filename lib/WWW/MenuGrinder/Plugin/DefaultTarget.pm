@@ -6,6 +6,8 @@ use Moose;
 
 with 'WWW::MenuGrinder::Role::ItemPreMogrifier';
 
+sub plugin_depends { qw(Visitor) }
+
 sub item_pre_mogrify {
   my ($self, $item) = @_;
 

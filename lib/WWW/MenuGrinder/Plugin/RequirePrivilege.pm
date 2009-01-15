@@ -7,6 +7,8 @@ use List::Util;
 
 with 'WWW::MenuGrinder::Role::ItemMogrifier';
 
+sub plugin_depends { qw(Visitor) }
+
 sub item_mogrify {
   my ( $self, $item ) = @_;
 

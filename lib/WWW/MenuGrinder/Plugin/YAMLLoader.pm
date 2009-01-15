@@ -8,9 +8,9 @@ use YAML::XS;
 
 with 'WWW::MenuGrinder::Role::Loader';
 
-has 'filename',
-  is => 'ro',
-  required => 1;
+has 'filename' => (
+  is => 'rw',
+);
 
 sub load {
   my ($self) = @_;

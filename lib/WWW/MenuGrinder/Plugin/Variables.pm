@@ -7,6 +7,8 @@ use List::Util;
 
 with 'WWW::MenuGrinder::Role::ItemMogrifier';
 
+sub plugin_depends { qw(Visitor) }
+
 has 'substitute_fields' => (
   is => 'ro',
   default => sub { [ 'label' ] }

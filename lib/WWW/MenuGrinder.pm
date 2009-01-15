@@ -19,6 +19,11 @@ has 'plugins' => (
   default => sub { [] },
 );
 
+has 'plugin_hash' => (
+  is => 'rw',
+  default => sub { + {} },
+);
+
 has 'loader' => (
   is => 'rw',
 #  isa => 'WWW::MenuGrinder::Role::Loader',
@@ -63,6 +68,11 @@ has 'mogrifiers' => (
   },
 );
 
+has 'config' => (
+  is => 'rw',
+  default => sub { + {} },
+);
+
 sub plugins_with {
   my ($self, $role) = @_;
 
@@ -71,41 +81,83 @@ sub plugins_with {
   return [ grep $_->does($role), @{ $self->plugins } ]
 }
 
+sub register_plugin {
+  my ($self, $class, $plugin) = @_;
+
+  push @{ $self->plugins }, $plugin;
+  $self->plugin_hash->{$class} = $plugin;
+}
+
+sub load_plugin {
+  my ($self, $class) = @_;
+
+  warn "load_plugin $class\n";
+
+  my $shortname;
+
+  if ($class =~ /^\+/) {
+    $class =~ s/^\+//;
+  } else {
+    $shortname = $class;
+    $class =~ s/^/WWW::MenuGrinder::Plugin::/;
+  }
+
+  return $self->plugin_hash->{$class} if $self->plugin_hash->{$class};
+
+  eval "require $class; 1" or die $@;
+
+  if ($class->can('plugin_depends')) {
+    my @deps = $class->plugin_depends;
+    for my $dep (@deps) {
+      eval {
+        $self->load_plugin($dep);
+      };
+      if ($@) {
+        die "$@ while loading $dep, which was required by $class";
+      };
+    }
+  }
+
+  my %plugin_config;
+
+  if (defined $shortname) {
+    my $config = $self->config->{$shortname};
+    %plugin_config = %$config if defined $config;
+  } else {
+    my $config = $self->config->{$class};
+    %plugin_config = %$config if defined $config;
+  }
+
+  my $plugin = $class->new( %plugin_config, grinder => $self );
+
+  $self->register_plugin($class, $plugin);
+}
+
 sub load_plugins {
   my ($self, @args) = @_;
 
-  my @plugins;
+  my $plugins = $self->config->{plugins};
 
-  while (@args) {
-    my $class = shift @args;
+  return unless $plugins;
 
-    if ($class =~ /^\+/) {
-      $class =~ s/^\+//;
-    } else {
-      $class =~ s/^/WWW::MenuGrinder::Plugin::/;
-    }
-
-    my %plugin_args;
-
-    if (@args && ref($args[0])) {
-      %plugin_args = %{ shift @args };
-    }
-
-    eval "require $class; 1" or die $@;
-
-    my $plugin = $class->new( %plugin_args, grinder => $self );
-    push @plugins, $plugin;
+  for my $class (@$plugins) {
+    $self->load_plugin($class);
   }
-
-  $self->plugins( [ @plugins ] );
 }
 
-sub init {
+sub init_menu {
   my ($self) = @_;
 
   my $menu = $self->loader->load;
   $menu = $self->pre_mogrify($menu);
   $self->menu($menu);
+}
+
+sub init {
+  my ($self) = @_;
+
+  $self->load_plugins;
+  $self->init_menu;
 }
 
 sub pre_mogrify {
