@@ -16,7 +16,7 @@ has 'path' => (
   default => sub { 'user/view' }
 );
 
-before 'init' => sub {
+before 'init_menu' => sub {
   warn "Init!\n";
 };
 
