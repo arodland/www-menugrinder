@@ -1,6 +1,6 @@
 package WWW::MenuGrinder;
 
-# ABSTRACT: Menu Munger.
+# ABSTRACT: A tool for managing dynamic website menus - base class.
 
 use strict;
 use warnings;
@@ -189,3 +189,28 @@ sub get_menu {
 
 no Moose;
 1;
+
+
+=head1 SYNOPSIS
+
+  my $grinder = My::Subclass::Of::MenuGrinder->new(
+    config => {
+      plugins => [
+        'XMLLoader',
+        'Hotkeys',
+        'NullOutput',
+      ],
+      filename => "/foo/menu.xml"
+   },
+  );
+
+  # Some time later...
+  
+  my $menu = $grinder->get_menu
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder> is a framework for demonstrating how I can't write POD to
+save my life.
+
+=cut
