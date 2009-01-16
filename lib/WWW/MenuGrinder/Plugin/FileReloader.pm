@@ -35,6 +35,8 @@ sub before_mogrify {
 
   my $time = (stat $self->filename)[9];
 
+  # It seems odd that we're not setting $self->timestamp here but our
+  # before_pre_mogrify is about to get called anyway...
   if (defined $time and $time > $self->timestamp) {
     $self->grinder->init_menu;
   }
