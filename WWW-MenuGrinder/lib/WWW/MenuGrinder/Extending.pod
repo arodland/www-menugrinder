@@ -117,4 +117,14 @@ XXX write more about how this is called.
 
 =back
 
+=item * B<Output>
+
+Finally, the L<Output|WWW::MenuGrinder::Role::Output> plugin is called. There is
+only one output plugin, and it is always last in the chain; therefore its output
+isn't required to be valid input to any other plugin, as with other plugins. The
+return value of the output plugin's C<output> method will be returned from the
+grinder object's C<get_menu> method.
+
 =back
+
+=cut
