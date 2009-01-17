@@ -49,6 +49,18 @@ sub get_variable {
   return $self->menu_vars->{$varname};
 }
 
+before get_menu => sub {
+  my ($self) = @_;
+
+  $self->_c->stats->profile(begin => "Rendering menu");
+};
+
+after get_menu => sub {
+  my ($self) = @_;
+
+  $self->_c->stats->profile(end => "Rendering menu");
+};
+
 sub BUILD {
   my ($self) = @_;
 
