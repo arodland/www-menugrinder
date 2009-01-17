@@ -1,5 +1,9 @@
 <menu>
   <item>
+    <label>Home</label>
+    <location></location>
+  </item>
+  <item>
     <label>One</label>
     <location>one</location>
     <item>
@@ -28,9 +32,5 @@
       <location>two/a</location>
       <location>two/b</location>
     </item>
-  </item>
-  <item>
-    <label>Three - No Children</label>
-    <location>three</location>
   </item>
 </menu>
