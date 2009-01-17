@@ -19,7 +19,7 @@
       <location>somewhere_else</location>
     </item>
     <item>
-      <label>Different Target</label>
+      <label>Target ne Location</label>
       <location>two/foo</location>
       <target>/two/bar</target>
     </item>

@@ -7,7 +7,7 @@
     color: #f00;
   }
 
-  li.active a {
+  li.active > a {
     color: #0f0;
   }
 </style>
@@ -17,7 +17,7 @@
 This next thing is the menu, even though there's no CSS to make it look menu-y!
 </p>
 [% BLOCK menuitem %]
-  <ul [%- IF class %]class="[% class %]"[% END %]>
+  <ul [%- IF menu.class %]class="[% menu.class %]"[% END %]>
   [% FOREACH item = menu.item %]
   <li [% IF item.active %]class="active"[% END %]>
     <a href="[% item.target %]">[% item.label %]</a>
