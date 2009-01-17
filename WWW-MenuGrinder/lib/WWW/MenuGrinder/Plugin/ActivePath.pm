@@ -39,7 +39,8 @@ sub item_mogrify {
 
   # Walk our children (which have just been processed) and see if any of them
   # have active scores (that are better than ours). Mark the best item as
-  # active=1 and remove the attribute from the rest.
+  # active=yes or active=child depending, and remove the attribute from the
+  # rest.
 
   if ( ref $item->{item} ) {
     my $max = List::Util::max( map { $_->{active} || 0 } @{ $item->{item} } );
