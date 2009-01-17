@@ -42,16 +42,26 @@ sub item_mogrify {
   # active=1 and remove the attribute from the rest.
 
   if ( ref $item->{item} ) {
-    my $max = List::Util::max( (map { $_->{active} || 0 } @{ $item->{item} }), $item->{active} || 0 );
-    if ($max) {
+    my $max = List::Util::max( map { $_->{active} || 0 } @{ $item->{item} } );
+    my $myactive = $item->{active} || 0;
+
+    if ($myactive > $max) {
+      for my $i ( @{ $item->{item} } ) {
+        delete $i->{active};
+        delete $i->{active_child};
+      }
+    } elsif ($max) {
       for my $i ( @{ $item->{item} } ) {
         if ( defined $i->{active} && $i->{active} == $max ) {
-          $i->{active} = 1;
+          $i->{active} = $i->{active_child} ? 'child' : 'yes';
+          delete $i->{active_child};
         } else {
           delete $i->{active};
+          delete $i->{active_child};
         }
       }
       $item->{active} = $max;
+      $item->{active_child} = 1;
     }
   }
   return $item;
