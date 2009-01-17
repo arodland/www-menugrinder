@@ -4,10 +4,11 @@
     <location>one</location>
     <item>
       <label>Foo is ${foo}</label>
-      <location>foo</location>
+      <location>one/foo</location>
     </item>
     <item>
       <label>The answer is ${answer}</label>
+      <location>one/bar</location>
     </item>
   </item>
   <item>
