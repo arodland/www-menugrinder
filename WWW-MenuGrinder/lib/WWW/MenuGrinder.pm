@@ -91,8 +91,6 @@ sub register_plugin {
 sub load_plugin {
   my ($self, $class) = @_;
 
-  warn "load_plugin $class\n";
-
   my $shortname;
 
   if ($class =~ /^\+/) {
