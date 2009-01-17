@@ -1,4 +1,4 @@
-package WWW::MenuGrinder::Catalyst::ModelBase;
+package Catalyst::Model::WWW::MenuGrinder;
 
 # ABSTRACT: Catalyst Model base class for WWW::MenuGrinder
 
@@ -10,7 +10,7 @@ with 'Catalyst::Component::InstancePerContext';
 sub build_per_context_instance {
   my ($self, $c) = @_;
 
-  my $menu_class = $self->config->{menu_class} || "WWW::MenuGrinder::Catalyst::MenuBase";
+  my $menu_class = $self->config->{menu_class} || "Catalyst::Model::WWW::MenuGrinder";
   eval "require $menu_class; 1;" or die "$@ loading menu_class";
 
   my $menu_config = $self->config->{menu_config} || {};
