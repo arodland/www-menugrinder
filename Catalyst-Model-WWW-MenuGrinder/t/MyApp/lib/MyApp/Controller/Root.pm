@@ -6,19 +6,31 @@ use parent 'Catalyst::Controller';
 
 __PACKAGE__->config->{namespace} = '';
 
-sub default :Path {
+sub auto : Private {
     my ( $self, $c ) = @_;
 
     $c->stash->{template} = "menu.tt";
 
     # Throw a couple things in there for the menu to read vars-wise.
     $c->stash->{foo} = "bar";
-    $c->stash->{answer} = 42;
-    
-    $c->stash->{menu} = $c->model('Menu')->get_menu;
+
+    return 1;
 }
 
-sub end : ActionClass('RenderView') {}
+sub default :Path {
+  my ( $self, $c ) = @_;
+  # Do nothing
+}
+
+sub answer :Path('/one/answer') {
+  my ( $self, $c ) = @_;
+  $c->stash->{the_answer} = 42;
+}
+
+sub end : ActionClass('RenderView') {
+  my ( $self, $c ) = @_;
+  $c->stash->{menu} = $c->model('Menu')->get_menu;
+}
 
 =head1 AUTHOR
 

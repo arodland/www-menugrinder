@@ -11,8 +11,13 @@
       <location>one/foo</location>
     </item>
     <item>
-      <label>The answer is ${answer}</label>
-      <location>one/bar</location>
+      <label>The answer!</label>
+      <location>one/answer</location>
+      <item>
+        <label>The answer is ${the_answer}</label>
+        <need_var>the_answer</need_var>
+        <location>one/answer</location>
+      </item>
     </item>
   </item>
   <item>
