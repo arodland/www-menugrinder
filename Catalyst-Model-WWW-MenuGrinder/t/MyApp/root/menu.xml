@@ -1,0 +1,35 @@
+<menu>
+  <item>
+    <label>One</label>
+    <location>one</location>
+    <item>
+      <label>Foo is ${foo}</label>
+      <location>foo</location>
+    </item>
+    <item>
+      <label>The answer is ${answer}</label>
+    </item>
+  </item>
+  <item>
+    <label>Two</label>
+    <location>two</location>
+    <item>
+      <label>Different Location</label>
+      <location>somewhere_else</location>
+    </item>
+    <item>
+      <label>Different Target</label>
+      <location>two/foo</location>
+      <target>/two/bar</target>
+    </item>
+    <item>
+      <label>Multiple Locations</label>
+      <location>two/a</location>
+      <location>two/b</location>
+    </item>
+  </item>
+  <item>
+    <label>Three - No Children</label>
+    <location>three</location>
+  </item>
+</menu>

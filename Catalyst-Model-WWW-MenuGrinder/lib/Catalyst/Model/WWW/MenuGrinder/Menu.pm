@@ -6,6 +6,8 @@ use Moose;
 
 extends 'WWW::MenuGrinder';
 
+use Scalar::Util qw(weaken);
+
 has '_c' => (
   is => 'rw',
 );
@@ -20,13 +22,38 @@ sub has_priv {
 sub path {
   my ($self, $path) = @_;
 
-  return $self->c->path;
+  return $self->_c->req->path;
+}
+
+sub _get_all_vars {
+  my ($self) = @_;
+  my $c = $self->_c;
+
+  my %vars;
+
+  if ($c->can('session')) {
+    %vars = %{ $c->session };
+  }
+  %vars = ( %vars, %{ $c->stash });
+
+  return \%vars;
+}
+
+has 'menu_vars' => (
+  is => 'rw',
+);
+
+sub get_variable {
+  my ($self, $varname) = @_;
+
+  return $self->menu_vars->{$varname};
 }
 
 sub BUILD {
   my ($self) = @_;
 
   weaken($self->_c);
+  $self->menu_vars( $self->_get_all_vars );
 }
 
 no Moose;

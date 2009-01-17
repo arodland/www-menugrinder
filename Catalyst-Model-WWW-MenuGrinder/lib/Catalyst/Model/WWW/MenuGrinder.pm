@@ -10,7 +10,7 @@ with 'Catalyst::Component::InstancePerContext';
 sub build_per_context_instance {
   my ($self, $c) = @_;
 
-  my $menu_class = $self->config->{menu_class} || "Catalyst::Model::WWW::MenuGrinder";
+  my $menu_class = $self->config->{menu_class} || "Catalyst::Model::WWW::MenuGrinder::Menu";
   eval "require $menu_class; 1;" or die "$@ loading menu_class";
 
   my $menu_config = $self->config->{menu_config} || {};
