@@ -10,14 +10,6 @@ has '_c' => (
   is => 'rw',
 );
 
-has 'path' => (
-  is => 'rw',
-);
-
-has 'user' => (
-  is => 'rw',
-);
-
 # Supply a default that works with C::P::Authz::Roles
 sub has_priv {
   my ($self, $priv) = @_;

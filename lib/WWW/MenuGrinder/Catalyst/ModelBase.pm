@@ -27,3 +27,26 @@ sub build_per_context_instance {
 
 no Moose;
 1;
+
+=head1 SYNOPSIS
+
+  package MyApp::Model::Menu;
+
+  use Moose;
+
+  extends 'WWW::MenuGrinder::Catalyst::ModelBase';
+
+  __PACKAGE__->config(
+    menu_config => {
+      plugins => [
+        'XMLLoader',
+        'DefaultTarget',
+        'NullOutput',
+      ],
+      filename => MyApp->path_to('root', 'menu.xml'),
+    },
+  );
+
+  no Moose;
+
+=cut
