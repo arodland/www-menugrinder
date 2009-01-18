@@ -2,30 +2,38 @@ package Catalyst::Model::WWW::MenuGrinder;
 
 # ABSTRACT: Catalyst Model base class for WWW::MenuGrinder
 
-use Moose;
+use base 'Catalyst::Model';
 
-extends 'Catalyst::Model';
-with 'Catalyst::Component::InstancePerContext';
+__PACKAGE__->mk_accessors('_menu');
 
-sub build_per_context_instance {
-  my ($self, $c) = @_;
+sub new {
+  my $class = shift;
+  my $self = $class->NEXT::new(@_);
 
-  my $menu_class = $self->config->{menu_class} || "Catalyst::Model::WWW::MenuGrinder::Menu";
+  my $config = $self->config;
+
+  my $menu_class = $config->{menu_class} || "Catalyst::Model::WWW::MenuGrinder::Menu";
   eval "require $menu_class; 1;" or die "$@ loading menu_class";
 
-  my $menu_config = $self->config->{menu_config} || {};
+  my $menu_config = $config->{menu_config} || {};
 
   my $menu = $menu_class->new(
     config => $menu_config,
-    _c => $c,
   );
 
-  $menu->init;
+  $self->_menu($menu);
 
-  return $menu;
+  return $self;
 }
 
-no Moose;
+sub ACCEPT_CONTEXT {
+  my ($self, $c) = @_;
+
+  $self->_menu->_accept_context($c);
+
+  return $self->_menu;
+}
+
 1;
 
 =head1 SYNOPSIS

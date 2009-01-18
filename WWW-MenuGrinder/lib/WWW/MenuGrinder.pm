@@ -151,7 +151,7 @@ sub init_menu {
   $self->menu($menu);
 }
 
-sub init {
+sub BUILD {
   my ($self) = @_;
 
   $self->load_plugins;

@@ -6,9 +6,10 @@ __PACKAGE__->config(
   menu_config => {
     plugins => [
       'XMLLoader',
+      'FileReloader',
       'DefaultTarget',
-      'ActivePath',
       'Variables',
+      'ActivePath',
       'NullOutput',
     ],
     filename => MyApp->path_to('root', 'menu.xml'),

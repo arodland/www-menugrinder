@@ -61,10 +61,12 @@ after get_menu => sub {
   $self->_c->stats->profile(end => "Rendering menu");
 };
 
-sub BUILD {
-  my ($self) = @_;
+sub _accept_context {
+  my ($self, $c) = @_;
 
+  $self->_c($c);
   weaken($self->_c);
+
   $self->menu_vars( $self->_get_all_vars );
 }
 
