@@ -1,4 +1,4 @@
-package Catalyst::Model::WWW::MenuGrinder;
+package Catalyst::Model::MenuGrinder;
 
 # ABSTRACT: Catalyst Model base class for WWW::MenuGrinder
 
@@ -12,7 +12,7 @@ sub new {
 
   my $config = $self->config;
 
-  my $menu_class = $config->{menu_class} || "Catalyst::Model::WWW::MenuGrinder::Menu";
+  my $menu_class = $config->{menu_class} || "Catalyst::Model::MenuGrinder::Menu";
   eval "require $menu_class; 1;" or die "$@ loading menu_class";
 
   my $menu_config = $config->{menu_config} || {};
@@ -40,9 +40,7 @@ sub ACCEPT_CONTEXT {
 
   package MyApp::Model::Menu;
 
-  use Moose;
-
-  extends 'WWW::MenuGrinder::Catalyst::ModelBase';
+  use base 'Catalyst::Model::MenuGrinder';
 
   __PACKAGE__->config(
     menu_config => {
@@ -54,7 +52,5 @@ sub ACCEPT_CONTEXT {
       filename => MyApp->path_to('root', 'menu.xml'),
     },
   );
-
-  no Moose;
 
 =cut

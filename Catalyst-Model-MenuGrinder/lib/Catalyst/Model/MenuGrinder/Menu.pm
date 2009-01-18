@@ -1,4 +1,4 @@
-package Catalyst::Model::WWW::MenuGrinder::Menu;
+package Catalyst::Model::MenuGrinder::Menu;
 
 # ABSTRACT : WWW::MenuGrinder base class for Catalyst
 

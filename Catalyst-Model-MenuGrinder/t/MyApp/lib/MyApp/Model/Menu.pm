@@ -1,6 +1,6 @@
 package MyApp::Model::Menu;
 
-use base qw/Catalyst::Model::WWW::MenuGrinder/;
+use base qw/Catalyst::Model::MenuGrinder/;
 
 __PACKAGE__->config(
   menu_config => {
