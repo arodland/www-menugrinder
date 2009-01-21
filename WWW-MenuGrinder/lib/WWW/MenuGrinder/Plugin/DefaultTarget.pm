@@ -26,3 +26,27 @@ sub item_pre_mogrify {
 
 no Moose;
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::DefaultTarget> is a plugin for C<WWW::MenuGrinder>.
+You should not use it directly, but include it in the C<plugins> section of a
+C<WWW::MenuGrinder> config.
+
+When loaded, this plugin will create a C<target> (link target) key for each item
+of the menu that doesn't have one, but which does have a C<location> key. If an
+item has multiple C<locations>, the first is used to set the C<target>.
+
+=head1 CONFIGURATION
+
+None.
+
+=head1 REQUIRED METHODS
+
+None.
+
+=head1 DEPENDENCIES
+
+C<WWW::MenuGrinder::Plugin::Visitor>.
+
+=cut

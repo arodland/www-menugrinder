@@ -70,3 +70,34 @@ sub item_mogrify {
 
 no Moose;
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::ActivePath> is a plugin for C<WWW::MenuGrinder>. You
+should not use it directly, but include it in the C<plugins> section of a
+C<WWW::MenuGrinder> config.
+
+When loaded, this plugin will visit each item of the menu, comparing any item
+with a C<location> attribute to the current URL path. The item that best matches
+the current path will have its C<active> key set to "yes", and each of its
+ancestors will have its C<active> key set to "child".
+
+=head1 CONFIGURATION
+
+None.
+
+=head1 REQUIRED METHODS
+
+In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
+the method C<path> returning a path name for the current request.
+
+=head1 DEPENDENCIES
+
+C<WWW::MenuGrinder::Plugin::Visitor>.
+
+=head1 OTHER CONSIDERATIONS
+
+It's advisable to load this plugin after any plugins that may remove items from
+the menu, to ensure that the chain of active items is unbroken.
+
+=cut

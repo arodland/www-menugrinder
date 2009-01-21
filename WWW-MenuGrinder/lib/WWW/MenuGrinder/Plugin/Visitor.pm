@@ -128,3 +128,16 @@ sub mogrify {
 
 no Moose;
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::Visitor> is a plugin for C<WWW::MenuGrinder>. You
+should not use it directly, but include it in the C<plugins> section of a
+C<WWW::MenuGrinder> config.
+
+In fact, you probably won't include it in a configuration either; the Visitor
+plugin is usually loaded as a prerequisite of some other plugin. All
+C<WWW::MenuGrinder> plugins implementing the C<ItemMogrifier> or
+C<ItemPreMogrifier> interfaces make use of Visitor.
+
+=cut

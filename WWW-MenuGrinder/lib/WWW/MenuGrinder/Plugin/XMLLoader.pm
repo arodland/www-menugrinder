@@ -36,3 +36,20 @@ sub BUILD {
 no Moose;
 
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::XMLLoader> is a plugin for C<WWW::MenuGrinder>. You
+should not use it directly, but include it in the C<plugins> section of a
+C<WWW::MenuGrinder> config.
+
+This is an input plugin that uses L<XML::Simple> to load a menu structure.
+
+TODO example file.
+
+=head1 CONFIGURATION
+
+The key C<filename> in the global configuration holds the name of the file to be
+read.
+
+=cut

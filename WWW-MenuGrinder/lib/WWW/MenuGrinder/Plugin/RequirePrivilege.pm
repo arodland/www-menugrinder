@@ -28,3 +28,29 @@ sub item_mogrify {
 
 no Moose;
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::RequirePrivilege> is a plugin for
+C<WWW::MenuGrinder>. You should not use it directly, but include it in the
+C<plugins> section of a C<WWW::MenuGrinder> config.
+
+When loaded, this plugin will remove any menu item containing a C<need_priv> key
+identifying a privilege that's not available to the current request's user, and
+all of that item's children.
+
+=head1 CONFIGURATION
+
+None.
+
+=head1 REQUIRED METHODS
+
+In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
+the method C<has_priv>, which receives a privilege name as a string and returns
+true or false indicating whether the privilege check was successful.
+
+=head1 DEPENDENCIES
+
+C<WWW::MenuGrinder::Plugin::Visitor>.
+
+=cut

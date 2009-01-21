@@ -62,3 +62,39 @@ sub item_mogrify {
 
 no Moose;
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::Variables> is a plugin for C<WWW::MenuGrinder>. You
+should not use it directly, but include it in the C<plugins> section of a
+C<WWW::MenuGrinder> config.
+
+When loaded, this plugin will interpolate named variables into menu fields from
+the application context. It will also remove any item containing a C<need_var>
+key naming a variable that does exist (and all of that item's descendents), as
+well as any item containing a C<no_var> key naming a variable that I<does> exist
+(and all of that item's descendents).
+
+The variable interpolation syntax is akin to Perl's, except that curly braces
+are mandatory. For example, the string C<"Hello, ${object}!"> becomes 
+C<"Hello, world!"> if the variable C<object> holds the value C<"world">.
+
+=head1 CONFIGURATION
+
+=over 4
+
+=item * C<substitute_fields>
+
+An arrayref containing the names of menu keys to perform variable substitution
+on. Defaults to C<['label']>.
+
+=head1 REQUIRED METHODS
+
+In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
+the method C<get_variable> accepting a variable name (without C<${}>) and
+returning the value of that variable, or undef if the variable does not exist or
+is not set. Existence and definedness are not distinguished. The source of
+"variables" is left entirely to the implementer, but might be the stash, the
+session, the application configuration, or some combination.
+
+=cut

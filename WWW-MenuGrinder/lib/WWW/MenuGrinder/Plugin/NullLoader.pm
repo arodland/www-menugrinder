@@ -12,3 +12,19 @@ sub load {
 
 no Moose;
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::NullLoader> is a plugin for C<WWW::MenuGrinder>. You
+should not use it directly, but include it in the C<plugins> section of a
+C<WWW::MenuGrinder> config.
+
+This is a "loader" plugin that returns a menu structure supplied in the
+MenuGrinder config, rather than loading it from any external source. Its primary
+use is testing, but it may be useful in self-contained scripts as well.
+
+=head1 CONFIGURATION
+
+The global configuration key C<menu> is expected to contain the menu structure.
+
+=cut

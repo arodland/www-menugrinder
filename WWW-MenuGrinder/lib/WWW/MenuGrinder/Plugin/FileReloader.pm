@@ -40,6 +40,9 @@ sub before_mogrify {
   if (defined $time and $time > $self->timestamp) {
     $self->grinder->init_menu;
   }
+
+  return $self->grinder->menu;
+
 }
 
 sub BUILD {
@@ -53,3 +56,23 @@ sub BUILD {
 
 no Moose;
 1;
+
+=head1 DESCRIPTION
+
+C<WWW::MenuGrinder::Plugin::FileReloader> is a plugin for C<WWW::MenuGrinder>.
+You should not use it directly, but include it in the C<plugins> section of a
+C<WWW::MenuGrinder> config.
+
+When loaded, this plugin will automatically reload the menu file whenever its
+modification time changes.
+
+=head1 CONFIGURATION
+
+C<FileReloader> reads the key C<filename> in the global configuration.
+
+=head1 OTHER CONSIDERATIONS
+
+C<FileReloader> should be loaded before all other plugins, except for the
+C<Loader> plugin, to avoid surprises.
+
+=cut
