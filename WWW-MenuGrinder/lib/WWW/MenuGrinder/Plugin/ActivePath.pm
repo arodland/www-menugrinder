@@ -82,20 +82,20 @@ with a C<location> attribute to the current URL path. The item that best matches
 the current path will have its C<active> key set to "yes", and each of its
 ancestors will have its C<active> key set to "child".
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 None.
 
-=head1 REQUIRED METHODS
+=head2 Required Methods
 
 In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
 the method C<path> returning a path name for the current request.
 
-=head1 DEPENDENCIES
+=head2 Dependencies
 
 C<WWW::MenuGrinder::Plugin::Visitor>.
 
-=head1 OTHER CONSIDERATIONS
+=head2 Other Considerations
 
 It's advisable to load this plugin after any plugins that may remove items from
 the menu, to ensure that the chain of active items is unbroken.

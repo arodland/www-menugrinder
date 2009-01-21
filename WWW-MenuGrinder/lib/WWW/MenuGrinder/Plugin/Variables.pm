@@ -79,7 +79,7 @@ The variable interpolation syntax is akin to Perl's, except that curly braces
 are mandatory. For example, the string C<"Hello, ${object}!"> becomes 
 C<"Hello, world!"> if the variable C<object> holds the value C<"world">.
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 =over 4
 
@@ -88,7 +88,7 @@ C<"Hello, world!"> if the variable C<object> holds the value C<"world">.
 An arrayref containing the names of menu keys to perform variable substitution
 on. Defaults to C<['label']>.
 
-=head1 REQUIRED METHODS
+=head2 Required Methods
 
 In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
 the method C<get_variable> accepting a variable name (without C<${}>) and

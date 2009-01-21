@@ -35,15 +35,15 @@ character wrapped in C<< <u> >> tags (for example, C<"Hot_key"> becomes
 C<< "Hot<u>k</u>ey" >>, and the item's C<hotkey> key is set to the underlined
 character.
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 None.
 
-=head1 DEPENDENCIES
+=head2 Dependencies
 
 C<WWW::MenuGrinder::Plugin::Visitor>.
 
-=head1 BUGS
+=head2 Bugs
 
 This should probably be way more generic, instead of only useful for me.
 Suggestions welcome.

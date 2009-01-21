@@ -37,7 +37,7 @@ This is an input plugin that uses L<YAML::Simple> to load a menu structure.
 
 TODO example file.
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 The key C<filename> in the global configuration holds the name of the file to be
 read.

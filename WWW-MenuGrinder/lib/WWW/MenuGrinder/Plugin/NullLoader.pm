@@ -23,7 +23,7 @@ This is a "loader" plugin that returns a menu structure supplied in the
 MenuGrinder config, rather than loading it from any external source. Its primary
 use is testing, but it may be useful in self-contained scripts as well.
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 The global configuration key C<menu> is expected to contain the menu structure.
 

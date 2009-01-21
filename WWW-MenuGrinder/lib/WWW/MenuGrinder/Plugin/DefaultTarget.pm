@@ -37,15 +37,15 @@ When loaded, this plugin will create a C<target> (link target) key for each item
 of the menu that doesn't have one, but which does have a C<location> key. If an
 item has multiple C<locations>, the first is used to set the C<target>.
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 None.
 
-=head1 REQUIRED METHODS
+=head2 Required Methods
 
 None.
 
-=head1 DEPENDENCIES
+=head2 Dependencies
 
 C<WWW::MenuGrinder::Plugin::Visitor>.
 

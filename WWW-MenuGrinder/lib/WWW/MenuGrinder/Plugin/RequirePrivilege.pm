@@ -39,17 +39,17 @@ When loaded, this plugin will remove any menu item containing a C<need_priv> key
 identifying a privilege that's not available to the current request's user, and
 all of that item's children.
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 None.
 
-=head1 REQUIRED METHODS
+=head2 Required Methods
 
 In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
 the method C<has_priv>, which receives a privilege name as a string and returns
 true or false indicating whether the privilege check was successful.
 
-=head1 DEPENDENCIES
+=head2 Dependencies
 
 C<WWW::MenuGrinder::Plugin::Visitor>.
 

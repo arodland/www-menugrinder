@@ -66,11 +66,11 @@ C<WWW::MenuGrinder> config.
 When loaded, this plugin will automatically reload the menu file whenever its
 modification time changes.
 
-=head1 CONFIGURATION
+=head2 Configuration
 
 C<FileReloader> reads the key C<filename> in the global configuration.
 
-=head1 OTHER CONSIDERATIONS
+=head2 Other Considerations
 
 C<FileReloader> should be loaded before all other plugins, except for the
 C<Loader> plugin, to avoid surprises.
