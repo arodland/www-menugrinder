@@ -1,6 +1,6 @@
-=head1 NAME
+package WWW::MenuGrinder::Extending;
 
-WWW::MenuGrinder::Extending - Writing your own grinder plugins
+# ABSTRACT: Writing your own grinder plugins.
 
 =head1 DESCRIPTION
 
