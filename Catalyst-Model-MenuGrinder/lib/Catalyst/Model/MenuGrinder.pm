@@ -4,6 +4,8 @@ package Catalyst::Model::MenuGrinder;
 
 use base 'Catalyst::Model';
 
+use Scope::Guard;
+
 __PACKAGE__->mk_accessors('_menu');
 
 sub new {
@@ -28,6 +30,11 @@ sub new {
 
 sub ACCEPT_CONTEXT {
   my ($self, $c) = @_;
+
+  $c->stash->{__menu_guard} = Scope::Guard->new(sub {
+      $self->_menu->cleanup();
+    }
+  );
 
   $self->_menu->_accept_context($c);
 
