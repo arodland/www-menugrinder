@@ -45,6 +45,14 @@ plugin specified in the config in turn. Plugin dependencies are resolved after
 the requiring plugin's class is loaded, but before the requiring plugin's
 constructor is called.
 
+=item * B<Plugin Verification>
+
+Plugins and Plugin roles may provide a C<verify_plugin> method, to be called
+after the plugin and its dependencies have all been initialized. The purpose of
+this method is to ensure that contracts (such as required methods of the
+MenuGrinder object or of the plugin itself) are met at load time, in order to
+avoid surprises later.
+
 =item * B<Loading>
 
 Once the plugins are loaded, the L<Loader|WWW::MenuGrinder::Role::Loader> plugin
@@ -119,11 +127,21 @@ XXX write more about how this is called.
 
 =item * B<Output>
 
-Finally, the L<Output|WWW::MenuGrinder::Role::Output> plugin is called. There is
-only one output plugin, and it is always last in the chain; therefore its output
-isn't required to be valid input to any other plugin, as with other plugins. The
-return value of the output plugin's C<output> method will be returned from the
-grinder object's C<get_menu> method.
+Lastly in the processing chain, the L<Output|WWW::MenuGrinder::Role::Output>
+plugin is called. There is only one output plugin, and it is always last in the
+chain; therefore its output isn't required to be valid input to any other
+plugin, as with other plugins. The return value of the output plugin's
+C<output> method will be returned from the grinder object's C<get_menu> method.
+
+=back
+
+=item * B<Cleanup>
+
+Finally, the B<cleanup> method is called for each plugin, if it exists, allowing
+the plugin to discard any state data that it no longer needs. Note that due to
+implementation details of web frameworks, the Cleanup phase might happen
+immediately before the request phase of the next request, rather than
+immediately after the current request.
 
 =back
 
