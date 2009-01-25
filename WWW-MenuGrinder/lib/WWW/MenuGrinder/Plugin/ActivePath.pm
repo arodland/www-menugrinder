@@ -12,6 +12,8 @@ has path => ( is => 'rw' );
 
 sub plugin_depends { qw(Visitor) }
 
+sub plugin_required_grinder_methods { qw(path) }
+
 sub before_mogrify {
   my ($self) = @_;
 

@@ -128,6 +128,8 @@ sub load_plugin {
 
   my $plugin = $class->new( %plugin_config, grinder => $self );
 
+  $plugin->verify_plugin;
+
   $self->register_plugin($class, $plugin);
 }
 
@@ -169,6 +171,14 @@ sub pre_mogrify {
 
   return $menu;
 
+}
+
+sub cleanup {
+  my ($self, $menu) = @_;
+
+  for my $plugin (@{ $self->plugins }) {
+    $plugin->cleanup() if $plugin->can('cleanup');
+  }
 }
 
 sub get_menu {
