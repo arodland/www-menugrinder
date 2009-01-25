@@ -83,22 +83,39 @@ sub _visit {
 sub pre_mogrify {
   my ( $self, $menu ) = @_;
 
-  my @ipm = @{ $self->item_premogrifiers };
+  my @ipm = map +{
+    plugin => $_,
+    methods => [ $_->item_pre_mogrify_methods ]
+  }, @{ $self->item_premogrifiers };
+
+
+  for my $ipm (@ipm) {
+    print ref($ipm->{plugin}), ": [ @{ $ipm->{methods} } ]\n";
+  }
 
   # If there aren't any ItemPreMogrifiers then don't bother doing anything.
   return $menu unless @ipm;
 
-  $menu = _visit($menu, {
-      HASH => sub {
-        my ( $item ) = @_;
-        for (@ipm) {
-          $item = $_->item_pre_mogrify($item);
-          return () unless defined $item;
+  # Process each plugin's pass-1 method, then the pass-2 methods of eah plugin
+  # that has one, then pass-3 as necessary etc. until no more.
+  while (@ipm) {
+    $menu = _visit($menu, {
+        HASH => sub {
+          my ( $item ) = @_;
+          for my $ipm (@ipm) {
+            my $plugin = $ipm->{plugin};
+            my $method = $ipm->{methods}[0];
+            $item = $plugin->$method($item);
+            return () unless defined $item;
+          }
+          return $item;
         }
-        return $item;
       }
-    }
-  );
+    );
+
+    shift @{ $_->{methods} } for @ipm;
+    @ipm = grep @{ $_->{methods} }, @ipm;
+  }
 
   return $menu;
 }
@@ -106,22 +123,34 @@ sub pre_mogrify {
 sub mogrify {
   my ( $self, $menu ) = @_;
 
-  my @im = @{ $self->item_mogrifiers };
+  my @im = map +{
+    plugin => $_,
+    methods => [ $_->item_mogrify_methods ]
+  }, @{ $self->item_mogrifiers };
 
   # If there aren't any ItemMogrifiers then don't bother doing anything.
   return $menu unless @im;
 
-  $menu = _visit($menu, {
-      HASH => sub {
-        my ( $item ) = @_;
-        for (@im) {
-          $item = $_->item_mogrify($item);
-          return () unless defined $item;
+  # Process each plugin's pass-1 method, then the pass-2 methods of eah plugin
+  # that has one, then pass-3 as necessary etc. until no more.
+  while (@im) {
+    $menu = _visit($menu, {
+        HASH => sub {
+          my ( $item ) = @_;
+          for my $im (@im) {
+            my $plugin = $im->{plugin};
+            my $method = $im->{methods}[0];
+            $item = $plugin->$method($item);
+            return () unless defined $item;
+          }
+          return $item;
         }
-        return $item;
       }
-    }
-  );
+    );
+
+    shift @{ $_->{methods} } for @im;
+    @im = grep @{ $_->{methods} }, @im;
+  }
 
   return $menu;
 }

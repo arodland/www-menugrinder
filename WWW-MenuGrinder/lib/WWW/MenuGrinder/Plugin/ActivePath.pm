@@ -20,54 +20,72 @@ sub before_mogrify {
   $self->path( $self->grinder->path );
 }
 
-sub item_mogrify {
+has 'longest' => (
+  is => 'rw',
+  default => 0
+);
+
+sub item_mogrify_methods {
+  qw(find_longest_match mark_active_path)
+};
+
+sub find_longest_match {
   my ( $self, $item ) = @_;
 
-  if ( exists $item->{location} ) {
-
+  if (exists $item->{location}) {
     my @loc = ref($item->{location}) eq 'ARRAY' ? 
       @{ $item->{location} } : $item->{location};
 
     for my $location ( @loc ) {
+
+      my $active;
       # XML::Simple is stupid
       if ( $location eq '' or ref($location) eq 'HASH' ) { 
-        $item->{active} = 0.01; # more than 0, less than 1
-        next;
+        $active = 0.01; # more than 0, less than 1
       } elsif ( $self->{path} =~ m#^\Q$location\E(/|$)# ) {
-        $item->{active} = length($location);
+        $active = length($location);
+      }
+
+      if (defined $active && $active > $self->longest) {
+        $self->longest( $active );
+        # This one might be the longest, so we might use it later.
+        # If not, we'll delete it.
+        $item->{active} = $active;
       }
     }
   }
 
-  # Walk our children (which have just been processed) and see if any of them
-  # have active scores (that are better than ours). Mark the best item as
-  # active=yes or active=child depending, and remove the attribute from the
-  # rest.
+  return $item;
+}
 
-  if ( ref $item->{item} ) {
-    my $max = List::Util::max( map { $_->{active} || 0 } @{ $item->{item} } );
-    my $myactive = $item->{active} || 0;
+sub mark_active_path {
+  my ( $self, $item ) = @_;
 
-    if ($myactive > $max) {
-      for my $i ( @{ $item->{item} } ) {
-        delete $i->{active};
-        delete $i->{active_child};
-      }
-    } elsif ($max) {
-      for my $i ( @{ $item->{item} } ) {
-        if ( defined $i->{active} && $i->{active} == $max ) {
-          $i->{active} = $i->{active_child} ? 'child' : 'yes';
-          delete $i->{active_child};
-        } else {
-          delete $i->{active};
-          delete $i->{active_child};
+  # If we were the longest match, set active="yes".
+  # If one of our children is active (of either type) set active="child".
+
+  my $max = $self->longest;
+
+  if (defined $item->{active} and $item->{active} == $max) {
+    $item->{active} = "yes";
+  } else {
+    delete $item->{active};
+    if (ref ($item->{item})) {
+      for my $child ( @{ $item->{item} } ) {
+        if (defined $child->{active}) {
+          $item->{active} = "child";
+          last;
         }
       }
-      $item->{active} = $max;
-      $item->{active_child} = 1;
     }
   }
+
   return $item;
+}
+
+sub cleanup {
+  my ($self) = @_;
+  $self->longest(0);
 }
 
 no Moose;
