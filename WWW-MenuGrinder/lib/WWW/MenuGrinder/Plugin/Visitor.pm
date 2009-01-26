@@ -89,10 +89,6 @@ sub pre_mogrify {
   }, @{ $self->item_premogrifiers };
 
 
-  for my $ipm (@ipm) {
-    print ref($ipm->{plugin}), ": [ @{ $ipm->{methods} } ]\n";
-  }
-
   # If there aren't any ItemPreMogrifiers then don't bother doing anything.
   return $menu unless @ipm;
 
