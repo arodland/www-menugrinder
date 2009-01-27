@@ -9,6 +9,9 @@ with 'WWW::MenuGrinder::Role::ItemMogrifier';
 
 sub plugin_depends { qw(Visitor) }
 
+sub plugin_required_grinder_methods { qw(has_priv) }
+
+
 sub item_mogrify {
   my ( $self, $item ) = @_;
 

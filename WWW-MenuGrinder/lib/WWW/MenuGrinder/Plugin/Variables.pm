@@ -9,6 +9,8 @@ with 'WWW::MenuGrinder::Role::ItemMogrifier';
 
 sub plugin_depends { qw(Visitor) }
 
+sub plugin_required_grinder_methods { qw(get_variable) }
+
 has 'substitute_fields' => (
   is => 'ro',
   default => sub { [ 'label' ] }
