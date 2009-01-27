@@ -7,7 +7,13 @@ use Moose;
 with 'WWW::MenuGrinder::Role::Loader';
 
 sub load {
-  return $self->grinder->config->{menu}
+  my ($self) = @_;
+
+  if (! defined $self->grinder->config->{menu}) {
+    die "config->{menu} is required";
+  } else {
+    return $self->grinder->config->{menu}
+  }
 }
 
 no Moose;
