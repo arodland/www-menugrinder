@@ -218,7 +218,43 @@ no Moose;
 
 =head1 DESCRIPTION
 
-C<WWW::MenuGrinder> is a framework for demonstrating how I can't write POD to
-save my life.
+C<WWW::MenuGrinder> is a framework for integrating menus into web applications.
+
+=head1 WARNING
+
+Currently this is B<alpha code>. I welcome any opinions, ideas for extensions,
+new plugins, etc. However, documentation is incomplete, tests are nonexistent,
+and interfaces are subject to change. B<don't use this in production> unless
+you want to get yourself in deep.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<WWW::MenuGrinder::Extending> for the best current documentation of internals.
+
+=item *
+
+C<t/MyApp/> in L<Catalyst::Model::MenuGrinder> for an example of MenuGrinder
+in use.
+
+=item *
+
+The documentation for each individual plugin, for an idea of the kinds of
+things that are possible.
+
+=item *
+
+L<http://github.com/arodland/www-menugrinder/> for the latest code, and change
+history.
+
+=item *
+
+C<hobbs> on C<irc.perl.org>. I can be found in C<#catalyst> but private
+messages are okay to avoid off-topicness.
+
+=back
 
 =cut
