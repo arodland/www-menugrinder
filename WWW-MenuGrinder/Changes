@@ -1,3 +1,6 @@
+0.01_01 2008-01-30
+  * First dev release to CPAN.
+
 0.003_01 2008-01-25
   * Plugin API changes; ActivePath bugfix.
 
