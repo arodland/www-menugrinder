@@ -16,10 +16,6 @@ has 'path' => (
   default => sub { 'user/view' }
 );
 
-before 'init_menu' => sub {
-  warn "Init!\n";
-};
-
 sub get_variable {
   my ($self, $varname) = @_;
 
@@ -52,8 +48,6 @@ my $grinder = Test::MenuGrinder->new(
     filename => 't/menu.xml',
   },
 );
-
-$grinder->init;
 
 print Dumper $grinder->get_menu;
 
