@@ -24,11 +24,12 @@ sub item_mogrify {
   my ($self, $item) = @_;
 
   my $lang = $self->grinder->get_language;
+  my $separator = $self->separator;
 
   for my $field (@{ $self->localize_fields }) {
     
     if (exists $item->{ "$field$separator$lang" }) {
-      $item->{$field} = $item->{$field$separator$lang};
+      $item->{$field} = $item->{ "$field$separator$lang" };
     }
   }
 
