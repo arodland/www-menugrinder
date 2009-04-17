@@ -1,0 +1,29 @@
+menu {
+  item "Home" { location "" ; target "tgt" }
+  item "One" {
+    location "one"
+    item "Foo is ${foo}" { location "one/foo" }
+    item "The answer!" {
+      location "one/answer"
+      item "The answer is ${the_answer}" {
+        need_var "the_answer"
+        location "one/answer"
+      }
+    }
+  }
+  item "Two" {
+    location "two"
+    item "Different location" { location "somewhere_else" }
+    item "Target ne location" {
+      location "two/foo"
+      target "/two/bar"
+    }
+    item "Multiple locations" {
+      location "two/a"
+      location "two/b"
+    }
+  }
+  item {
+    location "has_no_label"
+  }
+}
