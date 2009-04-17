@@ -1,0 +1,59 @@
+01:41 <hobbs> that sounds smart
+01:42 <dhoss> this is one of my pet peeves, having to write a nav menu to
+              remember wtf i've written as far as controllers
+01:42 <dhoss> so MAYBE i could even put an option in there to somehow get a
+              list of controllers/actions and put them into the nav menu
+01:42 <dhoss> and have a debug mode to turn them on/of
+01:42 <dhoss> *off
+01:42 <hobbs> there's no reason there shouldn't be a cat helper that generates
+              a model either. The model class is trivial, but people like
+              having a helper script :)
+01:43 <hobbs> (that's an easy one, I just forgot to do it ;)
+01:43 <dhoss> i'm lazy as fuck, and i like to get to coding what i want to code
+              and not dilly dally with crap menus
+01:46 <hobbs> as far as auto-generating based on the actions, well I'm not sure
+              whether the quality would really be worth it, but I guess it
+              wouldn't really hurt
+01:47 <hobbs> here's an idea that I should probably be writing down for myself
+              instead of telling you
+01:47 <dhoss> i was thinking more along the lines of a debug type deal, so you
+              can click through and shit, then turn them off when you're done
+              debugging
+01:47 <dhoss> i've got a TODO file open, spill it
+
+01:48 <hobbs> but since the input doesn't really have to be a file, you should
+              be able to write a Loader plugin that walks attributes or
+              something on the actions in the app, instead of reading an
+              external menu file
+01:48 <dhoss> that's a fine idea.
+01:48 <hobbs> the hard part would be coming up with a nice format for
+              decorating the actions
+01:48 <dhoss> decorating how?
+01:48 <hobbs> what the attributes should look like, to contain the needed info
+              without being unwieldy
+01:49 <dhoss> sorry, i'm tired, you mean like besides XML in this isntance
+              right?
+01:49 <hobbs> yeah
+01:49 <dhoss> i don't see why a hash wouldn't suffice
+01:50 <dhoss> but you're talking about attributes
+01:50 <dhoss> i see
+01:50 <dhoss> yea that could get unwieldy fast
+01:50 <hobbs> I mean sub blargh :Path('/blargh/blarg') :Menu('section="Tools",
+              name="Blargh!"')
+01:50 <hobbs> or... something. :)
+01:50 <dhoss> :-D
+01:50 <hobbs> and then you wouldn't actually maintain the menu structure, it
+              would be implicit
+01:50 <dhoss> huh, that'd be REALLY cool
+01:50 <hobbs> it needs thinking, my point is just that there's room to think
+              outside the box
+01:51 <dhoss> you'd have to deal with it being a root/child node dealy as well
+01:51 <hobbs> yeah
+
+uld it take to factor in Forest::Tree to handle the tree stuff
+              for you?
+01:52 <hobbs> I don't know that one
+01:52 <dhoss> hmm, i'll take a look at it :-)
+01:52 <dhoss> it's neat, i'll come up with something and you tell me if you
+              like it or not
+
