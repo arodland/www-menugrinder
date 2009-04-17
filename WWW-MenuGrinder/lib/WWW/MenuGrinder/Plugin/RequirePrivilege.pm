@@ -27,6 +27,8 @@ sub item_mogrify {
   return $item;
 }
 
+__PACKAGE__->meta->make_immutable;
+
 no Moose;
 1;
 
