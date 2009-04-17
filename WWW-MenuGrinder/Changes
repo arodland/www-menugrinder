@@ -1,3 +1,8 @@
+0.02_01 2009-04-17
+  * Change the plugin loader around a good bit
+  * Let the config specify whether mogrifiers run on load or per-request
+  * Support multiple output plugins
+
 0.01_02 2009-04-15
   * Add Localize plugin.
   * Fix all of the dates in this changelog that were wrong. ;)
