@@ -62,11 +62,13 @@ sub _visit {
 sub visit_menu {
   my ( $self, $menu, $actions ) = @_;
 
+#  warn "Doing at once: ", (join ", ", map { $_->{plugin} } @$actions), "\n";
+
   $menu = _visit($menu, {
       HASH => sub {
         my ( $item ) = @_;
         for my $action (@$actions) {
-          my $plugin $action->{plugin};
+          my $plugin = $action->{plugin};
           my $method = $action->{method};
           $item = $plugin->$method($item);
           return () unless defined $item;

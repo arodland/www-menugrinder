@@ -31,14 +31,22 @@ has 'loader' => (
 
 has 'on_load_plugins' => (
   is => 'rw',
+  default => sub { [] },
 );
 
 has 'per_request_plugins' => (
   is => 'rw',
+  default => sub { [] },
 );
 
 has 'outputs' => (
   is => 'rw',
+  default => sub { [] },
+);
+
+has 'outputs_by_name' => (
+  is => 'rw',
+  default => sub { + {} },
 );
 
 has 'premogrifiers' => (
@@ -75,7 +83,7 @@ sub rolename {
 sub plugins_with {
   my ($self, $role) = @_;
 
-  my $prefix = _rolename('');
+  my $prefix = rolename('');
   $role =~ s/^-/$prefix/;
   return [ grep $_->does($role), @{ $self->plugins } ]
 }
@@ -130,8 +138,10 @@ sub load_plugin {
   $plugin->verify_plugin;
 
   $self->register_plugin($class, $plugin);
+  return $plugin;
 }
 
+# Load and verify all of the plugins in the config.
 sub load_plugins {
   my ($self, @args) = @_;
 
@@ -139,35 +149,36 @@ sub load_plugins {
 
   my $loader = $plugins->{loader};
   die "config->{plugins}{loader} is mandatory" unless defined $loader;
-  $self->load_plugin($loader);
-  die "Specified plugin $loader is not a Loader" unless $loader->does(rolename('Loader'));
+  my $loaderclass = $self->load_plugin($loader);
+  die "Specified plugin $loader is not a Loader" unless $loaderclass->does(rolename('Loader'));
+  $self->loader($loaderclass);
 
   my $on_load = $plugins->{on_load} || [];
-  for my $plugin (@$on_load) {
-    $self->load_plugin($plugin);
-    die "On-load plugin $plugin is not a Mogrifier or ItemMogrifier" 
+  for my $name (@$on_load) {
+    my $plugin = $self->load_plugin($name);
+    die "On-load plugin $name is not a Mogrifier or ItemMogrifier" 
       unless $plugin->does(rolename('Mogrifier')) or $plugin->does(rolename('ItemMogrifier'));
-
+    push @{ $self->on_load_plugins }, $plugin;
   }
-  $self->on_load_plugins($on_load);
 
   my $per_request = $plugins->{per_request} || [];
-  for my $plugin (@$per_request) {
-    $self->load_plugin($plugin);
-    die "On-load plugin $plugin is not a Mogrifier or ItemMogrifier" 
-      unless $plugin->does(rolename('Mogrifier')) or $plugin->does(rolename('ItemMogrifier'));
+  for my $name (@$per_request) {
+    my $plugin = $self->load_plugin($name);
+    die "Per-request plugin $name is not a Mogrifier, ItemMogrifier, or BeforeMogrify" 
+      unless $plugin->does(rolename('Mogrifier')) or $plugin->does(rolename('ItemMogrifier')) or $plugin->does(rolename('BeforeMogrify'));
+    push @{ $self->per_request_plugins }, $plugin;
   }
-  $self->per_request_plugins($per_request);
 
   my $outputs = $plugins->{outputs};
   $outputs = [ $plugins->{output} ] if !defined $outputs && defined $plugins->{output};
   $outputs = [] if !defined $outputs;
 
   for my $output (@$outputs) {
-    $self->load_plugin($plugin);
-    die "Specified plugin $output is not an Output" unless $output->does(rolename('Output'));
+    my $plugin = $self->load_plugin($output);
+    die "Specified plugin $output is not an Output" unless $plugin->does(rolename('Output'));
+    $self->outputs_by_name->{$output} = $plugin;
+    push @{ $self->outputs }, $plugin;
   }
-  $self->outputs($outputs);
 
 }
 
@@ -193,7 +204,7 @@ sub _remove_initial_subsequence (&\@) {
   my ($criterion, $arr) = @_;
   my @ret;
 
-  while ($criterion->( $arr->[0] )) {
+  while (@$arr && do { local $_ = $arr->[0]; $criterion->() }) {
     push @ret, shift @$arr;
   }
 
@@ -202,6 +213,8 @@ sub _remove_initial_subsequence (&\@) {
 
 sub mogrify {
   my ($self, $menu, $stage, @plugins) = @_;
+
+#  warn "$stage: ", (join ", ", map ref $_, @plugins), "\n";
 
   # We've got a list of plugins that are to run at this stage.
   # There are two kinds of p
@@ -220,33 +233,25 @@ sub mogrify {
         method => shift( @{ $_->{methods} } ),
       }, @im;
 
-      WWW::MenuGrinder::Visitor->visit_menu($menu, \@actions);
+      $menu = WWW::MenuGrinder::Visitor->visit_menu($menu, \@actions);
 
       @im = grep @{ $_->{methods} }, @im;
     }
+
+    last unless @plugins;
 
     my $mogrifier = shift @plugins;
 
     if ($mogrifier->does(rolename('Mogrifier'))) {
         $menu = $mogrifier->mogrify($menu);
-    } else {
-      warn "Unknown plugin $mogrifier specified to run at $stage -- ignoring\n";
     }
   }
 
   return $menu;
 }
 
-sub pre_mogrify_stage {
-  my ($self, $menu) = @_;
-
-  $menu = $self->mogrify( $menu, 'on-load', @{ $self->on_load_plugins } );
-
-  return $menu;
-}
-
 sub get_menu {
-  my ($self) = @_;
+  my ($self, $outputtype) = @_;
 
   $_->before_mogrify($self->menu) for @{ $self->plugins_with(-BeforeMogrify) };
 
@@ -254,7 +259,17 @@ sub get_menu {
 
   $menu = $self->mogrify( $menu, 'per-request', @{ $self->per_request_plugins } );
 
-  return $self->output->output($menu);
+  if (!defined $outputtype) {
+    if (@{ $self->outputs } == 1) {
+      return $self->outputs->[0]->output($menu);
+    } else {
+      return $menu;
+    }
+  }
+
+  my $output = $self->outputs_by_name->{$outputtype};
+  die "Output plugin $outputtype does not exist" unless defined $output;
+  return $output->output($menu);
 }
 
 sub cleanup {
