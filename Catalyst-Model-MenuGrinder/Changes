@@ -1,3 +1,7 @@
+0.01_02 2008-02-20
+  * Fix a bug where we would blow away a Scope::Guard if we had more than
+    one model instance in an app.
+
 0.01_01 2008-01-30
   * First dev release to CPAN.
 

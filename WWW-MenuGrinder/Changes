@@ -1,11 +1,15 @@
-0.01_01 2008-01-30
+0.01_02 2009-04-15
+  * Add Localize plugin.
+  * Fix all of the dates in this changelog that were wrong. ;)
+
+0.01_01 2009-01-30
   * First dev release to CPAN.
 
-0.003_01 2008-01-25
+0.003_01 2009-01-25
   * Plugin API changes; ActivePath bugfix.
 
-0.002_02 2008-01-21
+0.002_02 2009-01-21
   * FileReloader bugfix
 
-0.002_01 2008-01-17
+0.002_01 2009-01-17
   * First internal release.

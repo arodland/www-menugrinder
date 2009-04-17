@@ -7,8 +7,6 @@ use List::Util;
 
 with 'WWW::MenuGrinder::Role::ItemMogrifier';
 
-sub plugin_depends { qw(Visitor) }
-
 sub plugin_required_grinder_methods { qw(has_priv) }
 
 
@@ -51,9 +49,5 @@ None.
 In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
 the method C<has_priv>, which receives a privilege name as a string and returns
 true or false indicating whether the privilege check was successful.
-
-=head2 Dependencies
-
-C<WWW::MenuGrinder::Plugin::Visitor>.
 
 =cut

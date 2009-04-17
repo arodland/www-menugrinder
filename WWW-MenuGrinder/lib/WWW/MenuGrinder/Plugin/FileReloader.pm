@@ -4,7 +4,7 @@ package WWW::MenuGrinder::Plugin::FileReloader;
 
 use Moose;
 
-with 'WWW::MenuGrinder::Role::BeforePreMogrify';
+with 'WWW::MenuGrinder::Role::OnInit';
 with 'WWW::MenuGrinder::Role::BeforeMogrify';
 
 # New versions of Time::HiRes give us subsecond times on stat(). Use it if we
@@ -24,7 +24,7 @@ has timestamp => (
   is => 'rw'
 );
 
-sub before_pre_mogrify {
+sub on_init {
   my ($self) = @_;
   my $time = (stat $self->filename)[9];
   $self->timestamp( $time ) if defined $time;
@@ -35,8 +35,8 @@ sub before_mogrify {
 
   my $time = (stat $self->filename)[9];
 
-  # It seems odd that we're not setting $self->timestamp here but our
-  # before_pre_mogrify is about to get called anyway...
+  # It seems odd that we're not setting $self->timestamp here but our on_init
+  # is about to get called anyway...
   if (defined $time and $time > $self->timestamp) {
     $self->grinder->init_menu;
   }

@@ -31,7 +31,8 @@ sub new {
 sub ACCEPT_CONTEXT {
   my ($self, $c) = @_;
 
-  $c->stash->{__menu_guard} = Scope::Guard->new(sub {
+  $c->stash->{__menu_guard} = [] unless defined $c->stash->{__menu_guard};
+  push @{ $c->stash->{__menu_guard} }, Scope::Guard->new(sub {
       $self->_menu->cleanup();
     }
   );

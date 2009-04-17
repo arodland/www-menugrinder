@@ -8,6 +8,7 @@ use warnings;
 use Moose;
 
 use WWW::MenuGrinder::Role::Plugin;
+use WWW::MenuGrinder::Visitor;
 
 has 'menu' => (
   is => 'rw',
@@ -26,26 +27,26 @@ has 'plugin_hash' => (
 
 has 'loader' => (
   is => 'rw',
-#  isa => 'WWW::MenuGrinder::Role::Loader',
-  lazy => 1,
-  default => sub {
-    my $self = shift;
-    my @loaders = @{ $self->plugins_with(-Loader) };
-    die "Need exactly one Loader plugin" unless @loaders == 1;
-    $loaders[0];
-  },
 );
 
-has 'output' => (
+has 'on_load_plugins' => (
   is => 'rw',
-#  isa => 'WWW::MenuGrinder::Role::Output',
-  lazy => 1,
-  default => sub {
-    my $self = shift;
-    my @outputs = @{ $self->plugins_with(-Output) };
-    die "Need exactly one Output plugin" unless @outputs == 1;
-    $outputs[0];
-  },
+  default => sub { [] },
+);
+
+has 'per_request_plugins' => (
+  is => 'rw',
+  default => sub { [] },
+);
+
+has 'outputs' => (
+  is => 'rw',
+  default => sub { [] },
+);
+
+has 'outputs_by_name' => (
+  is => 'rw',
+  default => sub { + {} },
 );
 
 has 'premogrifiers' => (
@@ -73,11 +74,17 @@ has 'config' => (
   default => sub { + {} },
 );
 
+sub rolename {
+  my ($name) = @_;
+
+  return __PACKAGE__ . "::Role::$name";
+}
+
 sub plugins_with {
   my ($self, $role) = @_;
 
-  $role =~ s/^-/WWW::MenuGrinder::Role::/;
-
+  my $prefix = rolename('');
+  $role =~ s/^-/$prefix/;
   return [ grep $_->does($role), @{ $self->plugins } ]
 }
 
@@ -131,26 +138,57 @@ sub load_plugin {
   $plugin->verify_plugin;
 
   $self->register_plugin($class, $plugin);
+  return $plugin;
 }
 
+# Load and verify all of the plugins in the config.
 sub load_plugins {
   my ($self, @args) = @_;
 
   my $plugins = $self->config->{plugins};
 
-  return unless $plugins;
+  my $loader = $plugins->{loader};
+  die "config->{plugins}{loader} is mandatory" unless defined $loader;
+  my $loaderclass = $self->load_plugin($loader);
+  die "Specified plugin $loader is not a Loader" unless $loaderclass->does(rolename('Loader'));
+  $self->loader($loaderclass);
 
-  for my $class (@$plugins) {
-    $self->load_plugin($class);
+  my $on_load = $plugins->{on_load} || [];
+  for my $name (@$on_load) {
+    my $plugin = $self->load_plugin($name);
+    die "On-load plugin $name is not a Mogrifier or ItemMogrifier" 
+      unless $plugin->does(rolename('Mogrifier')) or $plugin->does(rolename('ItemMogrifier'));
+    push @{ $self->on_load_plugins }, $plugin;
   }
+
+  my $per_request = $plugins->{per_request} || [];
+  for my $name (@$per_request) {
+    my $plugin = $self->load_plugin($name);
+    die "Per-request plugin $name is not a Mogrifier, ItemMogrifier, or BeforeMogrify" 
+      unless $plugin->does(rolename('Mogrifier')) or $plugin->does(rolename('ItemMogrifier')) or $plugin->does(rolename('BeforeMogrify'));
+    push @{ $self->per_request_plugins }, $plugin;
+  }
+
+  my $outputs = $plugins->{outputs};
+  $outputs = [ $plugins->{output} ] if !defined $outputs && defined $plugins->{output};
+  $outputs = [] if !defined $outputs;
+
+  for my $output (@$outputs) {
+    my $plugin = $self->load_plugin($output);
+    die "Specified plugin $output is not an Output" unless $plugin->does(rolename('Output'));
+    $self->outputs_by_name->{$output} = $plugin;
+    push @{ $self->outputs }, $plugin;
+  }
+
 }
 
 sub init_menu {
   my ($self) = @_;
 
   my $menu = $self->loader->load;
-  $menu = $self->pre_mogrify($menu);
+  $menu = $self->mogrify( $menu, 'on-load', @{ $self->on_load_plugins } );
   $self->menu($menu);
+  $_->on_init($menu) for @{ $self->plugins_with(-OnInit) };
 }
 
 sub BUILD {
@@ -160,17 +198,78 @@ sub BUILD {
   $self->init_menu;
 }
 
-sub pre_mogrify {
-  my ($self, $menu) = @_;
+# Remove items from the beginning of an array that pass some test and return
+# them. Stop as soon as we find an item that fails the test.
+sub _remove_initial_subsequence (&\@) {
+  my ($criterion, $arr) = @_;
+  my @ret;
 
-  $_->before_pre_mogrify($menu) for @{ $self->plugins_with(-BeforePreMogrify) };
+  while (@$arr && do { local $_ = $arr->[0]; $criterion->() }) {
+    push @ret, shift @$arr;
+  }
 
-  my @pre_mog = @{ $self->premogrifiers };
+  return @ret;
+}
 
-  $menu = $_->pre_mogrify($menu) for @pre_mog;
+sub mogrify {
+  my ($self, $menu, $stage, @plugins) = @_;
+
+#  warn "$stage: ", (join ", ", map ref $_, @plugins), "\n";
+
+  # We've got a list of plugins that are to run at this stage.
+  # There are two kinds of p
+  while (@plugins) {
+    my @im = _remove_initial_subsequence { $_->does(rolename('ItemMogrifier')) } @plugins;
+    @im = map +{
+      plugin => $_,
+      methods => [ $_->item_mogrify_methods ],
+    }, @im;
+
+    # Process the first method of every plugin, then the second method of every
+    # plugin, then the third etc. until there are no more.
+    while (@im) {
+      my @actions = map +{
+        plugin => $_->{plugin},
+        method => shift( @{ $_->{methods} } ),
+      }, @im;
+
+      $menu = WWW::MenuGrinder::Visitor->visit_menu($menu, \@actions);
+
+      @im = grep @{ $_->{methods} }, @im;
+    }
+
+    last unless @plugins;
+
+    my $mogrifier = shift @plugins;
+
+    if ($mogrifier->does(rolename('Mogrifier'))) {
+        $menu = $mogrifier->mogrify($menu);
+    }
+  }
 
   return $menu;
+}
 
+sub get_menu {
+  my ($self, $outputtype) = @_;
+
+  $_->before_mogrify($self->menu) for @{ $self->plugins_with(-BeforeMogrify) };
+
+  my $menu = $self->menu;
+
+  $menu = $self->mogrify( $menu, 'per-request', @{ $self->per_request_plugins } );
+
+  if (!defined $outputtype) {
+    if (@{ $self->outputs } == 1) {
+      return $self->outputs->[0]->output($menu);
+    } else {
+      return $menu;
+    }
+  }
+
+  my $output = $self->outputs_by_name->{$outputtype};
+  die "Output plugin $outputtype does not exist" unless defined $output;
+  return $output->output($menu);
 }
 
 sub cleanup {
@@ -179,20 +278,6 @@ sub cleanup {
   for my $plugin (@{ $self->plugins }) {
     $plugin->cleanup() if $plugin->can('cleanup');
   }
-}
-
-sub get_menu {
-  my ($self) = @_;
-
-  $_->before_mogrify($self->menu) for @{ $self->plugins_with(-BeforeMogrify) };
-
-  my $menu = $self->menu;
-
-  my @mog = @{ $self->mogrifiers };
-
-  $menu = $_->mogrify($menu) for @mog;
-
-  return $self->output->output($menu);
 }
 
 no Moose;
