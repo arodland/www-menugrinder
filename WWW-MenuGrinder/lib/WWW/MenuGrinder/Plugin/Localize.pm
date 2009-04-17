@@ -5,8 +5,7 @@ package WWW::MenuGrinder::Plugin::Localize;
 use Moose;
 
 with 'WWW::MenuGrinder::Role::ItemMogrifier';
-
-sub plugin_depends { qw(Visitor) }
+with 'WWW::MenuGrinder::Role::BeforeMogrify';
 
 sub plugin_required_grinder_methods { qw(get_language) }
 
@@ -20,10 +19,21 @@ has 'separator' => (
   default => '-',
 );
 
+has 'language' => (
+  is => 'rw',
+);
+
+sub before_mogrify {
+  my ($self) = @_;
+
+  $self->language( $self->grinder->get_language );
+}
+
+
 sub item_mogrify {
   my ($self, $item) = @_;
 
-  my $lang = $self->grinder->get_language;
+  my $lang = $self->language;
   my $separator = $self->separator;
 
   for my $field (@{ $self->localize_fields }) {

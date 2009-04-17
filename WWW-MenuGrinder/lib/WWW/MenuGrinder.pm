@@ -8,6 +8,7 @@ use warnings;
 use Moose;
 
 use WWW::MenuGrinder::Role::Plugin;
+use WWW::MenuGrinder::Visitor;
 
 has 'menu' => (
   is => 'rw',
@@ -26,26 +27,18 @@ has 'plugin_hash' => (
 
 has 'loader' => (
   is => 'rw',
-#  isa => 'WWW::MenuGrinder::Role::Loader',
-  lazy => 1,
-  default => sub {
-    my $self = shift;
-    my @loaders = @{ $self->plugins_with(-Loader) };
-    die "Need exactly one Loader plugin" unless @loaders == 1;
-    $loaders[0];
-  },
 );
 
-has 'output' => (
+has 'on_load_plugins' => (
   is => 'rw',
-#  isa => 'WWW::MenuGrinder::Role::Output',
-  lazy => 1,
-  default => sub {
-    my $self = shift;
-    my @outputs = @{ $self->plugins_with(-Output) };
-    die "Need exactly one Output plugin" unless @outputs == 1;
-    $outputs[0];
-  },
+);
+
+has 'per_request_plugins' => (
+  is => 'rw',
+);
+
+has 'outputs' => (
+  is => 'rw',
 );
 
 has 'premogrifiers' => (
@@ -73,11 +66,17 @@ has 'config' => (
   default => sub { + {} },
 );
 
+sub rolename {
+  my ($name) = @_;
+
+  return __PACKAGE__ . "::Role::$name";
+}
+
 sub plugins_with {
   my ($self, $role) = @_;
 
-  $role =~ s/^-/WWW::MenuGrinder::Role::/;
-
+  my $prefix = _rolename('');
+  $role =~ s/^-/$prefix/;
   return [ grep $_->does($role), @{ $self->plugins } ]
 }
 
@@ -138,19 +137,47 @@ sub load_plugins {
 
   my $plugins = $self->config->{plugins};
 
-  return unless $plugins;
+  my $loader = $plugins->{loader};
+  die "config->{plugins}{loader} is mandatory" unless defined $loader;
+  $self->load_plugin($loader);
+  die "Specified plugin $loader is not a Loader" unless $loader->does(rolename('Loader'));
 
-  for my $class (@$plugins) {
-    $self->load_plugin($class);
+  my $on_load = $plugins->{on_load} || [];
+  for my $plugin (@$on_load) {
+    $self->load_plugin($plugin);
+    die "On-load plugin $plugin is not a Mogrifier or ItemMogrifier" 
+      unless $plugin->does(rolename('Mogrifier')) or $plugin->does(rolename('ItemMogrifier'));
+
   }
+  $self->on_load_plugins($on_load);
+
+  my $per_request = $plugins->{per_request} || [];
+  for my $plugin (@$per_request) {
+    $self->load_plugin($plugin);
+    die "On-load plugin $plugin is not a Mogrifier or ItemMogrifier" 
+      unless $plugin->does(rolename('Mogrifier')) or $plugin->does(rolename('ItemMogrifier'));
+  }
+  $self->per_request_plugins($per_request);
+
+  my $outputs = $plugins->{outputs};
+  $outputs = [ $plugins->{output} ] if !defined $outputs && defined $plugins->{output};
+  $outputs = [] if !defined $outputs;
+
+  for my $output (@$outputs) {
+    $self->load_plugin($plugin);
+    die "Specified plugin $output is not an Output" unless $output->does(rolename('Output'));
+  }
+  $self->outputs($outputs);
+
 }
 
 sub init_menu {
   my ($self) = @_;
 
   my $menu = $self->loader->load;
-  $menu = $self->pre_mogrify($menu);
+  $menu = $self->mogrify( $menu, 'on-load', @{ $self->on_load_plugins } );
   $self->menu($menu);
+  $_->on_init($menu) for @{ $self->plugins_with(-OnInit) };
 }
 
 sub BUILD {
@@ -160,25 +187,62 @@ sub BUILD {
   $self->init_menu;
 }
 
-sub pre_mogrify {
-  my ($self, $menu) = @_;
+# Remove items from the beginning of an array that pass some test and return
+# them. Stop as soon as we find an item that fails the test.
+sub _remove_initial_subsequence (&\@) {
+  my ($criterion, $arr) = @_;
+  my @ret;
 
-  $_->before_pre_mogrify($menu) for @{ $self->plugins_with(-BeforePreMogrify) };
+  while ($criterion->( $arr->[0] )) {
+    push @ret, shift @$arr;
+  }
 
-  my @pre_mog = @{ $self->premogrifiers };
-
-  $menu = $_->pre_mogrify($menu) for @pre_mog;
-
-  return $menu;
-
+  return @ret;
 }
 
-sub cleanup {
+sub mogrify {
+  my ($self, $menu, $stage, @plugins) = @_;
+
+  # We've got a list of plugins that are to run at this stage.
+  # There are two kinds of p
+  while (@plugins) {
+    my @im = _remove_initial_subsequence { $_->does(rolename('ItemMogrifier')) } @plugins;
+    @im = map +{
+      plugin => $_,
+      methods => [ $_->item_mogrify_methods ],
+    }, @im;
+
+    # Process the first method of every plugin, then the second method of every
+    # plugin, then the third etc. until there are no more.
+    while (@im) {
+      my @actions = map +{
+        plugin => $_->{plugin},
+        method => shift( @{ $_->{methods} } ),
+      }, @im;
+
+      WWW::MenuGrinder::Visitor->visit_menu($menu, \@actions);
+
+      @im = grep @{ $_->{methods} }, @im;
+    }
+
+    my $mogrifier = shift @plugins;
+
+    if ($mogrifier->does(rolename('Mogrifier'))) {
+        $menu = $mogrifier->mogrify($menu);
+    } else {
+      warn "Unknown plugin $mogrifier specified to run at $stage -- ignoring\n";
+    }
+  }
+
+  return $menu;
+}
+
+sub pre_mogrify_stage {
   my ($self, $menu) = @_;
 
-  for my $plugin (@{ $self->plugins }) {
-    $plugin->cleanup() if $plugin->can('cleanup');
-  }
+  $menu = $self->mogrify( $menu, 'on-load', @{ $self->on_load_plugins } );
+
+  return $menu;
 }
 
 sub get_menu {
@@ -188,11 +252,17 @@ sub get_menu {
 
   my $menu = $self->menu;
 
-  my @mog = @{ $self->mogrifiers };
-
-  $menu = $_->mogrify($menu) for @mog;
+  $menu = $self->mogrify( $menu, 'per-request', @{ $self->per_request_plugins } );
 
   return $self->output->output($menu);
+}
+
+sub cleanup {
+  my ($self, $menu) = @_;
+
+  for my $plugin (@{ $self->plugins }) {
+    $plugin->cleanup() if $plugin->can('cleanup');
+  }
 }
 
 no Moose;

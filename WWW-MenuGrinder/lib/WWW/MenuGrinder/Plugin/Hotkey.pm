@@ -4,11 +4,9 @@ package WWW::MenuGrinder::Plugin::Hotkey;
 
 use Moose;
 
-with 'WWW::MenuGrinder::Role::ItemPreMogrifier';
+with 'WWW::MenuGrinder::Role::ItemMogrifier';
 
-sub plugin_depends { qw(Visitor) }
-
-sub item_pre_mogrify {
+sub item_mogrify {
   my ($self, $item) = @_;
 
   return $item unless exists $item->{label};
@@ -38,10 +36,6 @@ character.
 =head2 Configuration
 
 None.
-
-=head2 Dependencies
-
-C<WWW::MenuGrinder::Plugin::Visitor>.
 
 =head2 Bugs
 

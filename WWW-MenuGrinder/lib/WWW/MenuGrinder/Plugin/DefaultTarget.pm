@@ -4,11 +4,9 @@ package WWW::MenuGrinder::Plugin::DefaultTarget;
 
 use Moose;
 
-with 'WWW::MenuGrinder::Role::ItemPreMogrifier';
+with 'WWW::MenuGrinder::Role::ItemMogrifier';
 
-sub plugin_depends { qw(Visitor) }
-
-sub item_pre_mogrify {
+sub item_mogrify {
   my ($self, $item) = @_;
 
   if (exists $item->{location} && !exists $item->{target}) {
@@ -44,9 +42,5 @@ None.
 =head2 Required Methods
 
 None.
-
-=head2 Dependencies
-
-C<WWW::MenuGrinder::Plugin::Visitor>.
 
 =cut

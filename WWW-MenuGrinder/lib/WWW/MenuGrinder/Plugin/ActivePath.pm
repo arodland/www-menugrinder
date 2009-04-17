@@ -10,8 +10,6 @@ with 'WWW::MenuGrinder::Role::BeforeMogrify';
 
 has path => ( is => 'rw' );
 
-sub plugin_depends { qw(Visitor) }
-
 sub plugin_required_grinder_methods { qw(path) }
 
 sub before_mogrify {
@@ -110,10 +108,6 @@ None.
 
 In order to load this plugin your C<WWW::MenuGrinder> subclass must implement
 the method C<path> returning a path name for the current request.
-
-=head2 Dependencies
-
-C<WWW::MenuGrinder::Plugin::Visitor>.
 
 =head2 Other Considerations
 
