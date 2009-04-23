@@ -95,6 +95,17 @@ sub register_plugin {
   $self->plugin_hash->{$class} = $plugin;
 }
 
+sub _ensure_loaded {
+  my ($self, $class) = @_;
+
+  my $file = $class . '.pm';
+  $file =~ s{::}{/}g;
+
+  return 1 if $INC{$file};
+
+  return eval qq{CORE::require(\$file)};
+}
+
 sub load_plugin {
   my ($self, $class) = @_;
 
@@ -109,7 +120,7 @@ sub load_plugin {
 
   return $self->plugin_hash->{$class} if $self->plugin_hash->{$class};
 
-  eval "require $class; 1" or die $@;
+  $self->_ensure_loaded($class) or die $@;
 
   if ($class->can('plugin_depends')) {
     my @deps = $class->plugin_depends;
