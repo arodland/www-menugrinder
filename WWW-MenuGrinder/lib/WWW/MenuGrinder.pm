@@ -10,9 +10,24 @@ use Moose;
 use WWW::MenuGrinder::Role::Plugin;
 use WWW::MenuGrinder::Visitor;
 
+=method C<< $grinder->menu >>
+
+Accessor. This is where the menu structure sits between "on load" processing and
+"per-request" processing.
+
+=cut
+
 has 'menu' => (
   is => 'rw',
 );
+
+=method C<< $grinder->plugins >>
+
+Accessor. Is an arrayref containing instances of all of the loaded plugins, in
+the order they were specified in the config. More likely accessed via 
+C<< $grinder->plugins_with($role) >>.
+
+=cut
 
 has 'plugins' => (
   is => 'rw',
@@ -74,21 +89,35 @@ has 'config' => (
   default => sub { + {} },
 );
 
+=method C<rolename($role)>
+
+Utility function, maps a role name (C<Plugin>) to the corresponding class name
+(C<WWW::MenuGrinder::Role::Plugin>).
+
+=cut
+
 sub rolename {
   my ($name) = @_;
 
   return __PACKAGE__ . "::Role::$name";
 }
 
+=method C<< $grinder->plugins_with($role) >>
+
+Returns an arrayref listing all of the registered plugin instances that
+consume the named role. Accepts the short name of a role.
+
+=cut
+
 sub plugins_with {
   my ($self, $role) = @_;
 
-  my $prefix = rolename('');
-  $role =~ s/^-/$prefix/;
-  return [ grep $_->does($role), @{ $self->plugins } ]
+  my $roleclass = rolename($role);
+
+  return [ grep $_->does($roleclass), @{ $self->plugins } ]
 }
 
-sub register_plugin {
+sub _register_plugin {
   my ($self, $class, $plugin) = @_;
 
   push @{ $self->plugins }, $plugin;
@@ -105,6 +134,44 @@ sub _ensure_loaded {
 
   return eval qq{CORE::require(\$file)};
 }
+
+=method C<< $grinder->load_plugin($plugin) >>
+
+Attempts to load the plugin given by C<$plugin>. If C<$plugin> begins with
+C<'+'> then it is treated as a literal classname, otherwise it is prefixed with
+C<WWW::MenuGrinder::Plugin::>. If the plugin is found:
+
+=over 4
+
+=item *
+
+The plugin is C<require>d.
+
+=item *
+
+Its C<plugin_depends>, if any, are followed recursively.
+
+=item *
+
+The plugin is instantiated, with its config from C<< $grinder->config >> (if
+any).
+
+=item *
+
+The plugin is asked to C<verify_plugin> itself (may throw an exception).
+
+=item *
+
+The plugin is added to the grinder's list of registered plugins to be returned
+by C<< $grinder->plugins >> and C<< $grinder->plugins_with >>.
+
+=item *
+
+The plugin instance is returned.
+
+=back
+
+=cut
 
 sub load_plugin {
   my ($self, $class) = @_;
@@ -148,9 +215,16 @@ sub load_plugin {
 
   $plugin->verify_plugin;
 
-  $self->register_plugin($class, $plugin);
+  $self->_register_plugin($class, $plugin);
   return $plugin;
 }
+
+=method C<< $grinder->load_plugins >>
+
+Called on grinder construction. Reads the list of plugins from the config and
+attempts to load them. Throws an exception if anything seems to be amiss.
+
+=cut
 
 # Load and verify all of the plugins in the config.
 sub load_plugins {
@@ -193,6 +267,28 @@ sub load_plugins {
 
 }
 
+=method C<< $grinder->init_menu >>
+
+Called on grinder construction.
+
+=over 4
+
+=item *
+
+Invokes the C<Loader> plugin to load the menu structure.
+
+=item *
+
+Invokes any "on_load" plugins to make initial modifications to the menu.
+
+=item *
+
+Invokes the C<on_init> method of any plugins consuming the C<OnInit> role.
+
+=back
+
+=cut
+
 sub init_menu {
   my ($self) = @_;
 
@@ -221,6 +317,18 @@ sub _remove_initial_subsequence (&\@) {
 
   return @ret;
 }
+
+=method C<< $grinder->mogrify($menu, $stage, @plugins) >>
+
+This is the main workhorse of MenuGrinder; given the menu structure and a list
+of plugins implementing C<Mogrifier> or C<ItemMogrifier> roles, it allows each
+plugin in turn to make modifications to the menu. C<ItemMogrifier> plugins that
+fall adjacent to each other in the plugin chain may be run together on a single
+pass over the menu tree; to avoid this behavior separate the C<ItemMogrifier>
+plugins by a C<Mogrifier> plugin, perhaps the no-op
+L<WWW::MenuGrinder::Plugin::NullTransform>.
+
+=cut
 
 sub mogrify {
   my ($self, $menu, $stage, @plugins) = @_;
@@ -260,6 +368,33 @@ sub mogrify {
 
   return $menu;
 }
+
+=method C<< $grinder->get_menu( [ $type ] ) >>
+
+Invokes all "per_request" plugins to modify a copy of the menu structure,
+possibly filters the menu through an C<Output> plugin, then returns the result.
+The heuristic for choosing an output is slightly complex:
+
+=over 4
+
+=item *
+
+If the C<$type> argument is provided then it is taken to be the name of the
+output plugin to use. If C<$type> doesn't correspond to the name of a loaded
+C<Output> plugin an error occurs.
+
+=item *
+
+If the C<$type> argument is not provided and there is exactly one loaded
+C<Output> plugin, that plugin is used.
+
+=item *
+
+Otherwise, the menu is returned unmodified.
+
+=back
+
+=cut
 
 sub get_menu {
   my ($self, $outputtype) = @_;
@@ -317,6 +452,19 @@ no Moose;
 =head1 DESCRIPTION
 
 C<WWW::MenuGrinder> is a framework for integrating menus into web applications.
+
+MenuGrinder provides a framework for any number of plugins (from CPAN or the
+"using" application) to work with a tree structure representing a navigational
+method. Plugins may perform tasks such as loading a representation of the menu
+from disk, rendering the menu as HTML, conditionally displaying menu items based
+on user permissions, or determining the menu item corresponding to the "current
+page". MenuGrinder plugins on the CPAN may be found in the
+C<WWW::MenuGrinder::Plugin::> namespace.
+
+MenuGrinder is intended to work well within web frameworks; currently there are
+glue classes for Catalyst on CPAN but it should work well within any system.
+
+MenuGrinder uses Moose to make extending it as pleasant as possible!
 
 =head1 WARNING
 
