@@ -112,9 +112,11 @@ consume the named role. Accepts the short name of a role.
 sub plugins_with {
   my ($self, $role) = @_;
 
-  my $roleclass = rolename($role);
+  if ($role =~ s/^-//) {
+    $role = rolename($role);
+  }
 
-  return [ grep $_->does($roleclass), @{ $self->plugins } ]
+  return [ grep $_->does($role), @{ $self->plugins } ]
 }
 
 sub _register_plugin {
