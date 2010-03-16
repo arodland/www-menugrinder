@@ -10,6 +10,11 @@ with 'WWW::MenuGrinder::Role::BeforeMogrify';
 
 has path => ( is => 'rw' );
 
+has active_child_ref => (
+  is => 'rw',
+  default => 0,
+);
+
 sub plugin_required_grinder_methods { qw(path) }
 
 sub before_mogrify {
@@ -38,9 +43,9 @@ sub find_longest_match {
 
       my $active;
       # XML::Simple is stupid
-      if ( $location eq '' or ref($location) eq 'HASH' ) { 
+      if ($location eq '' or (ref($location) && ref($location) eq 'HASH') ) { 
         $active = 0.01; # more than 0, less than 1
-      } elsif ( $self->{path} =~ m#^\Q$location\E(/|$)# ) {
+      } elsif ( $self->path =~ m#^\Q$location\E(/|$)# ) {
         $active = length($location);
       }
 
@@ -72,6 +77,7 @@ sub mark_active_path {
       for my $child ( @{ $item->{item} } ) {
         if (defined $child->{active}) {
           $item->{active} = "child";
+          $item->{active_child} = $child if $self->active_child_ref;
           last;
         }
       }
@@ -104,7 +110,15 @@ ancestors will have its C<active> key set to "child".
 
 =head2 Configuration
 
-None.
+=over 4
+
+=item * C<active_child_ref>
+
+Boolean (default: false). If set to a true value, items with C<active>="child"
+will also have a key C<active_child>, which is a reference to its child which
+is active.
+
+=back
 
 =head2 Required Methods
 
