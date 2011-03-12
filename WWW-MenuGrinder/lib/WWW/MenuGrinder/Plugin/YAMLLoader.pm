@@ -23,6 +23,15 @@ sub load {
   return $menu;
 }
 
+sub BUILD {
+  my ($self) = @_;
+
+  my $filename = $self->grinder->config->{filename};
+  die "config->{filename} is required" unless defined $filename;
+
+  $self->filename($filename);
+}
+
 no Moose;
 
 __PACKAGE__->meta->make_immutable;
